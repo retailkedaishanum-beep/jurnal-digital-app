@@ -1629,99 +1629,107 @@
             if (!currentDetailJurnal) return;
             
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const doc = new jsPDF('landscape', 'mm', 'a4'); // Format landscape
             
             const siswa = dataSiswa.find(s => s.id === currentDetailJurnal.siswaId);
             const tanggal = new Date(currentDetailJurnal.tanggal).toLocaleDateString('id-ID');
             
-            // Header dengan logo dan kop surat
+            // Header dengan logo dan kop surat (landscape: 297mm width)
             doc.setFillColor(41, 128, 185);
-            doc.rect(0, 0, 210, 25, 'F');
+            doc.rect(0, 0, 297, 25, 'F');
             
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(16);
+            doc.setFontSize(18);
             doc.setFont(undefined, 'bold');
-            doc.text('JURNAL HARIAN SISWA', 105, 12, { align: 'center' });
-            doc.setFontSize(12);
-            doc.text('7 KEBIASAAN ANAK INDONESIA HEBAT', 105, 20, { align: 'center' });
+            doc.text('JURNAL HARIAN SISWA', 148.5, 12, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text('7 KEBIASAAN ANAK INDONESIA HEBAT', 148.5, 20, { align: 'center' });
             
             // Reset text color
             doc.setTextColor(0, 0, 0);
             
-            // Info Siswa dalam box
+            // Info Siswa dalam box (landscape layout)
             doc.setFillColor(245, 245, 245);
-            doc.rect(15, 30, 180, 25, 'F');
+            doc.rect(15, 30, 267, 20, 'F');
             doc.setLineWidth(0.5);
-            doc.rect(15, 30, 180, 25);
+            doc.rect(15, 30, 267, 20);
             
-            doc.setFontSize(10);
+            doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
             doc.text('IDENTITAS SISWA', 20, 38);
             
             doc.setFont(undefined, 'normal');
-            doc.text(`Nama Siswa`, 20, 45);
-            doc.text(`: ${siswa ? siswa.nama : 'Unknown'}`, 60, 45);
-            doc.text(`Kelas`, 20, 50);
-            doc.text(`: ${siswa ? siswa.kelas : '-'}`, 60, 50);
+            doc.setFontSize(10);
+            doc.text(`Nama Siswa`, 20, 44);
+            doc.text(`: ${siswa ? siswa.nama : 'Unknown'}`, 60, 44);
+            doc.text(`Kelas`, 150, 44);
+            doc.text(`: ${siswa ? siswa.kelas : '-'}`, 170, 44);
+            doc.text(`Jurusan`, 220, 44);
+            doc.text(`: ${siswa ? siswa.jurusan : '-'}`, 250, 44);
+            doc.text(`Tanggal`, 20, 48);
+            doc.text(`: ${tanggal}`, 60, 48);
             
-            doc.text(`Jurusan`, 120, 45);
-            doc.text(`: ${siswa ? siswa.jurusan : '-'}`, 150, 45);
-            doc.text(`Tanggal`, 120, 50);
-            doc.text(`: ${tanggal}`, 150, 50);
-            
-            // Tabel dengan desain profesional
-            const startY = 65;
-            const colWidths = [15, 60, 115]; // No, Kebiasaan, Detail Kegiatan
+            // Tabel dengan desain profesional (landscape)
+            const startY = 60;
+            const colWidths = [20, 80, 177]; // No, Kebiasaan, Detail Kegiatan
             const tableWidth = colWidths.reduce((sum, width) => sum + width, 0);
             
             // Header tabel dengan warna biru
             doc.setFillColor(52, 152, 219);
-            doc.rect(15, startY, tableWidth, 12, 'F');
+            doc.rect(15, startY, tableWidth, 15, 'F');
             
             doc.setTextColor(255, 255, 255);
             doc.setFont(undefined, 'bold');
-            doc.setFontSize(9);
-            doc.text('No', 22, startY + 8);
-            doc.text('7 Kebiasaan Anak Indonesia Hebat', 25, startY + 8);
-            doc.text('Detail Kegiatan Harian', 95, startY + 8);
+            doc.setFontSize(11);
+            doc.text('No', 25, startY + 10);
+            doc.text('7 Kebiasaan Anak Indonesia Hebat', 35, startY + 10);
+            doc.text('Detail Kegiatan Harian Berdasarkan Input Form', 115, startY + 10);
             
             // Border header
             doc.setDrawColor(0, 0, 0);
             doc.setLineWidth(0.3);
-            doc.rect(15, startY, colWidths[0], 12);
-            doc.rect(15 + colWidths[0], startY, colWidths[1], 12);
-            doc.rect(15 + colWidths[0] + colWidths[1], startY, colWidths[2], 12);
+            doc.rect(15, startY, colWidths[0], 15);
+            doc.rect(15 + colWidths[0], startY, colWidths[1], 15);
+            doc.rect(15 + colWidths[0] + colWidths[1], startY, colWidths[2], 15);
             
             // Reset text color
             doc.setTextColor(0, 0, 0);
             
-            // Data kebiasaan dengan format yang lebih detail
+            // Data kebiasaan dengan format sesuai input form
             const habits = [
                 { 
                     no: '1', 
                     title: 'Bangun Pagi\n(Disiplin Waktu)', 
                     value: currentDetailJurnal.bangunPagi ? 
-                        `✓ Bangun pagi jam ${currentDetailJurnal.bangunPagi} WIB\n• Menunjukkan kedisiplinan dalam mengatur waktu\n• Memulai hari dengan semangat dan energi positif` : 
-                        '✗ Belum mengisi waktu bangun pagi\n• Perlu meningkatkan kedisiplinan waktu\n• Disarankan bangun sebelum jam 06:00 WIB'
+                        `✅ Waktu Bangun: ${currentDetailJurnal.bangunPagi} WIB\n\n• Siswa berhasil bangun pagi sesuai waktu yang ditentukan\n• Menunjukkan kedisiplinan dalam mengatur waktu harian\n• Memulai aktivitas dengan energi positif dan semangat` : 
+                        '❌ Belum Mengisi Waktu Bangun Pagi\n\n• Siswa belum mengisi waktu bangun pagi di form jurnal\n• Perlu meningkatkan kedisiplinan dalam mengatur waktu\n• Disarankan bangun sebelum jam 06:00 WIB untuk aktivitas optimal'
                 },
                 { 
                     no: '2', 
                     title: 'Beribadah\n(Spiritual)', 
                     value: (() => {
                         if (Array.isArray(currentDetailJurnal.beribadah) && currentDetailJurnal.beribadah.length > 0) {
-                            return `✓ Melaksanakan ibadah: ${currentDetailJurnal.beribadah.join(', ')}\n• Menunjukkan ketaatan dalam beribadah\n• Membangun karakter spiritual yang kuat`;
-                        } else if (currentDetailJurnal.beribadah) {
-                            return `✓ Kegiatan ibadah: ${currentDetailJurnal.beribadah}\n• Aktif dalam kegiatan keagamaan\n• Membangun hubungan spiritual yang baik`;
+                            return `✅ Ibadah yang Dilaksanakan: ${currentDetailJurnal.beribadah.join(', ')}\n\n• Total ${currentDetailJurnal.beribadah.length} kegiatan ibadah telah dilaksanakan\n• Menunjukkan ketaatan dan konsistensi dalam beribadah\n• Membangun karakter spiritual yang kuat dan berkesinambungan`;
+                        } else if (currentDetailJurnal.beribadah && typeof currentDetailJurnal.beribadah === 'string') {
+                            return `✅ Kegiatan Ibadah: ${currentDetailJurnal.beribadah}\n\n• Siswa aktif melaksanakan kegiatan keagamaan\n• Menunjukkan komitmen dalam menjalankan ajaran agama\n• Membangun hubungan spiritual yang baik dengan Tuhan`;
                         }
-                        return '✗ Belum melaksanakan kegiatan ibadah\n• Perlu meningkatkan aktivitas spiritual\n• Disarankan rutin beribadah sesuai keyakinan';
+                        return '❌ Belum Melaksanakan Kegiatan Ibadah\n\n• Siswa belum mengisi kegiatan ibadah di form jurnal\n• Perlu meningkatkan aktivitas spiritual harian\n• Disarankan rutin beribadah sesuai dengan keyakinan masing-masing';
                     })()
                 },
                 { 
                     no: '3', 
                     title: 'Berolahraga\n(Kesehatan Fisik)', 
-                    value: currentDetailJurnal.berolahraga ? 
-                        `✓ Aktivitas olahraga: ${currentDetailJurnal.berolahraga}\n• Menjaga kesehatan dan kebugaran tubuh\n• Membangun pola hidup sehat dan aktif` : 
-                        '✗ Belum melakukan aktivitas olahraga\n• Perlu meningkatkan aktivitas fisik\n• Disarankan olahraga minimal 30 menit/hari'
+                    value: (() => {
+                        if (currentDetailJurnal.berolahraga && currentDetailJurnal.berolahraga.trim() !== '' && !currentDetailJurnal.berolahraga.includes('undefined')) {
+                            const parts = currentDetailJurnal.berolahraga.split(' - ');
+                            if (parts.length >= 2 && parts[0].trim() !== '' && !parts[1].includes('undefined')) {
+                                return `✅ Aktivitas Olahraga: ${currentDetailJurnal.berolahraga}\n\n• Siswa telah melakukan aktivitas fisik sesuai yang diinputkan\n• Menjaga kesehatan dan kebugaran tubuh dengan baik\n• Membangun pola hidup sehat dan aktif secara konsisten`;
+                            } else if (parts[0].trim() !== '') {
+                                return `✅ Jenis Olahraga: ${parts[0]}\n\n• Siswa telah melakukan aktivitas olahraga\n• Durasi belum diisi lengkap, namun tetap menunjukkan komitmen\n• Disarankan mencatat durasi untuk monitoring yang lebih baik`;
+                            }
+                        }
+                        return '❌ Belum Melakukan Aktivitas Olahraga\n\n• Siswa belum mengisi kegiatan olahraga di form jurnal\n• Perlu meningkatkan aktivitas fisik untuk kesehatan\n• Disarankan berolahraga minimal 30 menit per hari';
+                    })()
                 },
                 { 
                     no: '4', 
@@ -1729,14 +1737,16 @@
                     value: (() => {
                         if (typeof currentDetailJurnal.makanSehat === 'object' && currentDetailJurnal.makanSehat !== null) {
                             const meals = [];
-                            if (currentDetailJurnal.makanSehat.sarapan) meals.push('Sarapan');
-                            if (currentDetailJurnal.makanSehat.siang) meals.push('Makan Siang');
-                            if (currentDetailJurnal.makanSehat.malam) meals.push('Makan Malam');
+                            if (currentDetailJurnal.makanSehat.sarapan) meals.push('Sarapan (06:00-09:00)');
+                            if (currentDetailJurnal.makanSehat.siang) meals.push('Makan Siang (12:00-14:00)');
+                            if (currentDetailJurnal.makanSehat.malam) meals.push('Makan Malam (18:00-20:00)');
                             if (meals.length > 0) {
-                                return `✓ Pola makan sehat: ${meals.join(', ')}\n• Mengonsumsi makanan bergizi seimbang\n• Menjaga pola makan teratur dan sehat`;
+                                return `✅ Pola Makan Sehat: ${meals.join(', ')}\n\n• Siswa telah menerapkan ${meals.length} dari 3 waktu makan utama\n• Mengonsumsi makanan bergizi seimbang sesuai jadwal\n• Menjaga pola makan teratur untuk kesehatan optimal`;
                             }
+                        } else if (currentDetailJurnal.makanSehat === true) {
+                            return `✅ Menerapkan Pola Makan Sehat\n\n• Siswa telah mengonsumsi makanan sehat\n• Memperhatikan asupan gizi seimbang\n• Menjaga pola makan yang teratur dan bergizi`;
                         }
-                        return '✗ Belum menerapkan pola makan sehat\n• Perlu meningkatkan asupan gizi seimbang\n• Disarankan makan 3x sehari dengan menu bergizi';
+                        return '❌ Belum Menerapkan Pola Makan Sehat\n\n• Siswa belum mengisi pola makan sehat di form jurnal\n• Perlu meningkatkan asupan gizi seimbang harian\n• Disarankan makan 3x sehari dengan menu bergizi lengkap';
                     })()
                 },
                 { 
@@ -1746,11 +1756,13 @@
                         if (Array.isArray(currentDetailJurnal.gemarBelajar) && currentDetailJurnal.gemarBelajar.length > 0) {
                             const totalDurasi = currentDetailJurnal.gemarBelajar.reduce((sum, act) => sum + (act.durasi || 0), 0);
                             const kegiatan = currentDetailJurnal.gemarBelajar.map((act, idx) => 
-                                `${idx + 1}. ${act.jenis}${act.mapel ? ' - ' + act.mapel : ''}\n   ${act.deskripsi} (${act.durasi || 0} menit)`
+                                `${idx + 1}. ${act.jenis}${act.mapel ? ' (' + act.mapel + ')' : ''}: ${act.deskripsi} - ${act.durasi || 0} menit`
                             ).join('\n');
-                            return `✓ Total ${currentDetailJurnal.gemarBelajar.length} kegiatan belajar (${totalDurasi} menit)\n${kegiatan}\n• Menunjukkan semangat belajar yang tinggi`;
+                            return `✅ Total ${currentDetailJurnal.gemarBelajar.length} Kegiatan Belajar (${totalDurasi} menit)\n\n${kegiatan}\n\n• Menunjukkan semangat belajar yang tinggi dan konsisten\n• Aktif dalam berbagai kegiatan pengembangan diri`;
+                        } else if (currentDetailJurnal.gemarBelajar && typeof currentDetailJurnal.gemarBelajar === 'string' && currentDetailJurnal.gemarBelajar.trim() !== '') {
+                            return `✅ Kegiatan Belajar: ${currentDetailJurnal.gemarBelajar.substring(0, 100)}${currentDetailJurnal.gemarBelajar.length > 100 ? '...' : ''}\n\n• Siswa telah melakukan kegiatan belajar tambahan\n• Menunjukkan inisiatif dalam pengembangan diri\n• Memiliki motivasi belajar yang baik`;
                         }
-                        return '✗ Belum melakukan kegiatan belajar tambahan\n• Perlu meningkatkan motivasi belajar\n• Disarankan belajar mandiri minimal 2 jam/hari';
+                        return '❌ Belum Melakukan Kegiatan Belajar Tambahan\n\n• Siswa belum mengisi kegiatan belajar di form jurnal\n• Perlu meningkatkan motivasi dan aktivitas belajar\n• Disarankan belajar mandiri minimal 2 jam per hari';
                     })()
                 },
                 { 
@@ -1760,33 +1772,35 @@
                         if (Array.isArray(currentDetailJurnal.bermasyarakat) && currentDetailJurnal.bermasyarakat.length > 0) {
                             const totalDurasi = currentDetailJurnal.bermasyarakat.reduce((sum, act) => sum + (act.durasi || 0), 0);
                             const kegiatan = currentDetailJurnal.bermasyarakat.map((act, idx) => 
-                                `${idx + 1}. ${act.jenis}${act.lokasi ? ' di ' + act.lokasi : ''}\n   ${act.detail} (${act.durasi || 0} menit)`
+                                `${idx + 1}. ${act.jenis}${act.lokasi ? ' di ' + act.lokasi : ''}: ${act.detail} - ${act.durasi || 0} menit`
                             ).join('\n');
-                            return `✓ Total ${currentDetailJurnal.bermasyarakat.length} kegiatan sosial (${totalDurasi} menit)\n${kegiatan}\n• Aktif berpartisipasi dalam kegiatan masyarakat`;
+                            return `✅ Total ${currentDetailJurnal.bermasyarakat.length} Kegiatan Sosial (${totalDurasi} menit)\n\n${kegiatan}\n\n• Aktif berpartisipasi dalam kegiatan kemasyarakatan\n• Menunjukkan kepedulian sosial yang tinggi`;
+                        } else if (currentDetailJurnal.bermasyarakat && typeof currentDetailJurnal.bermasyarakat === 'string' && currentDetailJurnal.bermasyarakat.trim() !== '') {
+                            return `✅ Kegiatan Bermasyarakat: ${currentDetailJurnal.bermasyarakat.substring(0, 100)}${currentDetailJurnal.bermasyarakat.length > 100 ? '...' : ''}\n\n• Siswa telah terlibat dalam kegiatan masyarakat\n• Menunjukkan jiwa sosial dan kepedulian terhadap lingkungan\n• Aktif berkontribusi dalam kehidupan bermasyarakat`;
                         }
-                        return '✗ Belum terlibat dalam kegiatan masyarakat\n• Perlu meningkatkan kepedulian sosial\n• Disarankan ikut kegiatan RT/RW atau organisasi';
+                        return '❌ Belum Terlibat dalam Kegiatan Masyarakat\n\n• Siswa belum mengisi kegiatan bermasyarakat di form jurnal\n• Perlu meningkatkan kepedulian dan partisipasi sosial\n• Disarankan ikut kegiatan RT/RW atau organisasi kemasyarakatan';
                     })()
                 },
                 { 
                     no: '7', 
                     title: 'Tidur Cepat\n(Manajemen Waktu)', 
                     value: currentDetailJurnal.tidurCepat ? 
-                        `✓ Tidur malam jam ${currentDetailJurnal.tidurCepat} WIB\n• Menerapkan pola tidur yang teratur\n• Menjaga kesehatan dengan istirahat cukup` : 
-                        '✗ Belum mengatur waktu tidur yang baik\n• Perlu memperbaiki pola tidur\n• Disarankan tidur sebelum jam 22:00 WIB'
+                        `✅ Waktu Tidur: ${currentDetailJurnal.tidurCepat} WIB\n\n• Siswa telah mengatur waktu tidur dengan baik\n• Menerapkan pola tidur yang teratur dan disiplin\n• Menjaga kesehatan dengan istirahat yang cukup dan tepat waktu` : 
+                        '❌ Belum Mengatur Waktu Tidur yang Baik\n\n• Siswa belum mengisi waktu tidur di form jurnal\n• Perlu memperbaiki pola tidur untuk kesehatan optimal\n• Disarankan tidur sebelum jam 22:00 WIB untuk istirahat maksimal'
                 }
             ];
             
             // Gambar baris tabel
-            let currentY = startY + 12;
+            let currentY = startY + 15;
             doc.setFont(undefined, 'normal');
-            doc.setFontSize(7);
+            doc.setFontSize(8);
             
             habits.forEach((habit, index) => {
                 // Hitung tinggi sel berdasarkan konten
-                const wrappedText = doc.splitTextToSize(habit.value, colWidths[2] - 6);
+                const wrappedText = doc.splitTextToSize(habit.value, colWidths[2] - 8);
                 const titleLines = habit.title.split('\n');
                 const maxLines = Math.max(titleLines.length, wrappedText.length);
-                const cellHeight = Math.max(20, maxLines * 3.5 + 8);
+                const cellHeight = Math.max(25, maxLines * 3 + 12);
                 
                 // Warna latar belakang bergantian
                 if (index % 2 === 0) {
@@ -1803,21 +1817,21 @@
                 
                 // Nomor
                 doc.setFont(undefined, 'bold');
-                doc.setFontSize(10);
-                doc.text(habit.no, 22, currentY + 12);
+                doc.setFontSize(12);
+                doc.text(habit.no, 25, currentY + 15);
                 
                 // Judul kebiasaan
                 doc.setFont(undefined, 'bold');
-                doc.setFontSize(8);
+                doc.setFontSize(9);
                 titleLines.forEach((line, lineIndex) => {
-                    doc.text(line, 18, currentY + 8 + (lineIndex * 4));
+                    doc.text(line, 20, currentY + 10 + (lineIndex * 4));
                 });
                 
                 // Detail kegiatan
                 doc.setFont(undefined, 'normal');
-                doc.setFontSize(7);
+                doc.setFontSize(8);
                 wrappedText.forEach((line, lineIndex) => {
-                    doc.text(line, 18 + colWidths[0] + colWidths[1], currentY + 6 + (lineIndex * 3.5));
+                    doc.text(line, 20 + colWidths[0] + colWidths[1], currentY + 8 + (lineIndex * 3));
                 });
                 
                 currentY += cellHeight;
@@ -1829,52 +1843,57 @@
             doc.rect(15, startY, tableWidth, currentY - startY);
             
             // Catatan dan evaluasi
-            const noteY = currentY + 10;
+            const noteY = currentY + 8;
             doc.setFillColor(255, 248, 220);
-            doc.rect(15, noteY, 180, 15, 'F');
+            doc.rect(15, noteY, 267, 12, 'F');
             doc.setLineWidth(0.3);
-            doc.rect(15, noteY, 180, 15);
+            doc.rect(15, noteY, 267, 12);
             
             doc.setFont(undefined, 'bold');
-            doc.setFontSize(9);
-            doc.text('CATATAN EVALUASI:', 20, noteY + 6);
+            doc.setFontSize(10);
+            doc.text('CATATAN EVALUASI:', 20, noteY + 5);
             doc.setFont(undefined, 'normal');
-            doc.setFontSize(8);
-            doc.text('Jurnal ini menunjukkan aktivitas harian siswa dalam menerapkan 7 kebiasaan positif.', 20, noteY + 10);
-            doc.text('Orang tua dan guru dapat memberikan bimbingan untuk kebiasaan yang perlu ditingkatkan.', 20, noteY + 13);
-            
-            // Tanda tangan dengan box
-            const signatureY = noteY + 25;
-            
-            // Box tanda tangan kiri
-            doc.rect(20, signatureY, 70, 35);
-            doc.setFont(undefined, 'bold');
             doc.setFontSize(9);
+            doc.text('Jurnal ini menunjukkan aktivitas harian siswa berdasarkan input form dalam menerapkan 7 kebiasaan positif anak Indonesia hebat.', 20, noteY + 8);
+            doc.text('Orang tua dan guru wali dapat memberikan bimbingan serta motivasi untuk kebiasaan yang perlu ditingkatkan lebih lanjut.', 20, noteY + 11);
+            
+            // Tanda tangan dengan box (landscape layout)
+            const signatureY = noteY + 20;
+            
+            // Box tanda tangan kiri - Orang Tua/Wali Murid
+            doc.setLineWidth(0.5);
+            doc.rect(20, signatureY, 90, 30);
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(10);
             doc.text('Mengetahui,', 25, signatureY + 8);
             doc.setFont(undefined, 'normal');
+            doc.setFontSize(9);
             doc.text('Orang Tua/Wali Murid', 25, signatureY + 15);
-            doc.text('Tanda Tangan:', 25, signatureY + 25);
-            doc.text('(________________________)', 25, signatureY + 32);
+            doc.text('Tanda Tangan & Nama Lengkap:', 25, signatureY + 22);
+            doc.text('(________________________________)', 25, signatureY + 27);
             
-            // Box tanda tangan kanan
-            doc.rect(120, signatureY, 70, 35);
+            // Box tanda tangan kanan - Guru Wali
+            doc.rect(187, signatureY, 90, 30);
             doc.setFont(undefined, 'bold');
-            doc.text(`${tanggal}`, 125, signatureY + 8);
+            doc.setFontSize(10);
+            doc.text(`${tanggal}`, 192, signatureY + 8);
             doc.setFont(undefined, 'normal');
-            doc.text('Siswa', 125, signatureY + 15);
-            doc.text('Tanda Tangan:', 125, signatureY + 25);
-            doc.text(`(${siswa ? siswa.nama : 'Unknown'})`, 125, signatureY + 32);
+            doc.setFontSize(9);
+            doc.text('Guru Wali', 192, signatureY + 15);
+            doc.text('Tanda Tangan & Nama Lengkap:', 192, signatureY + 22);
+            doc.text('(________________________________)', 192, signatureY + 27);
             
             // Footer dengan border
+            const footerY = signatureY + 40;
             doc.setDrawColor(41, 128, 185);
             doc.setLineWidth(1);
-            doc.line(15, 285, 195, 285);
+            doc.line(15, footerY, 282, footerY);
             
-            doc.setFontSize(7);
+            doc.setFontSize(8);
             doc.setFont(undefined, 'italic');
             doc.setTextColor(100, 100, 100);
-            doc.text('Jurnal Digital 7 Kebiasaan Anak Indonesia Hebat - Sistem Monitoring Karakter Siswa', 105, 290, { align: 'center' });
-            doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 105, 294, { align: 'center' });
+            doc.text('Jurnal Digital 7 Kebiasaan Anak Indonesia Hebat - Sistem Monitoring Karakter Siswa Berbasis Web', 148.5, footerY + 5, { align: 'center' });
+            doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')} | Format: Landscape A4`, 148.5, footerY + 9, { align: 'center' });
             
             doc.save(`Jurnal_Harian_${siswa ? siswa.nama.replace(/\s+/g, '_') : 'Unknown'}_${tanggal.replace(/\//g, '-')}.pdf`);
         }
@@ -2208,5 +2227,5 @@
             checkboxes.forEach(cb => cb.checked = false);
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aad30632cadf9f',t:'MTc1OTgxMzExNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aadd0d34a2df9f',t:'MTc1OTgxMzUyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
