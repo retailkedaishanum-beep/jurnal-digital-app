@@ -490,18 +490,18 @@
             <div class="bg-white rounded-xl p-6 card-shadow mt-8">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">📋 Riwayat Jurnal Saya</h3>
                 <div class="overflow-x-auto">
-                    <table class="w-full table-auto">
+                    <table class="table-auto border-collapse border border-gray-300">
                         <thead>
                             <tr class="bg-gray-50">
-                                <th class="px-4 py-2 text-left">Tanggal</th>
-                                <th class="px-4 py-2 text-left">Bangun Pagi</th>
-                                <th class="px-4 py-2 text-left">Beribadah</th>
-                                <th class="px-4 py-2 text-left">Berolahraga</th>
-                                <th class="px-4 py-2 text-left">Makan Sehat</th>
-                                <th class="px-4 py-2 text-left">Gemar Belajar</th>
-                                <th class="px-4 py-2 text-left">Bermasyarakat</th>
-                                <th class="px-4 py-2 text-left">Tidur Cepat</th>
-                                <th class="px-4 py-2 text-left">Aksi</th>
+                                <th class="px-3 py-2 text-left border border-gray-300 font-semibold">Tanggal</th>
+                                <th class="px-3 py-2 text-left border border-gray-300 font-semibold">Bangun Pagi</th>
+                                <th class="px-3 py-2 text-left border border-gray-300 font-semibold">Beribadah</th>
+                                <th class="px-3 py-2 text-left border border-gray-300 font-semibold">Berolahraga</th>
+                                <th class="px-3 py-2 text-left border border-gray-300 font-semibold">Makan Sehat</th>
+                                <th class="px-3 py-2 text-left border border-gray-300 font-semibold">Gemar Belajar</th>
+                                <th class="px-3 py-2 text-left border border-gray-300 font-semibold">Bermasyarakat</th>
+                                <th class="px-3 py-2 text-left border border-gray-300 font-semibold">Tidur Cepat</th>
+                                <th class="px-3 py-2 text-left border border-gray-300 font-semibold">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="riwayatJurnal">
@@ -1449,21 +1449,59 @@
             
             const siswaJurnal = dataJurnal.filter(j => j.siswaId === 1); // Demo siswa ID 1
             
-            riwayatJurnal.innerHTML = siswaJurnal.map(jurnal => 
-                `<tr class="border-b">
-                    <td class="px-4 py-2">${new Date(jurnal.tanggal).toLocaleDateString('id-ID')}</td>
-                    <td class="px-4 py-2">${jurnal.bangunPagi || '-'}</td>
-                    <td class="px-4 py-2">${Array.isArray(jurnal.beribadah) ? '✅' : (jurnal.beribadah ? '✅' : '❌')}</td>
-                    <td class="px-4 py-2">${jurnal.berolahraga ? '✅' : '❌'}</td>
-                    <td class="px-4 py-2">${jurnal.makanSehat ? '✅' : '❌'}</td>
-                    <td class="px-4 py-2">${(Array.isArray(jurnal.gemarBelajar) && jurnal.gemarBelajar.length > 0) || jurnal.gemarBelajar ? '✅' : '❌'}</td>
-                    <td class="px-4 py-2">${(Array.isArray(jurnal.bermasyarakat) && jurnal.bermasyarakat.length > 0) || jurnal.bermasyarakat ? '✅' : '❌'}</td>
-                    <td class="px-4 py-2">${jurnal.tidurCepat || '-'}</td>
-                    <td class="px-4 py-2">
+            riwayatJurnal.innerHTML = siswaJurnal.map(jurnal => {
+                // Format beribadah data
+                let beribadahText = '-';
+                if (Array.isArray(jurnal.beribadah)) {
+                    beribadahText = jurnal.beribadah.length > 0 ? jurnal.beribadah.join(', ') : '-';
+                } else if (jurnal.beribadah) {
+                    beribadahText = jurnal.beribadah;
+                }
+                
+                // Format makan sehat data
+                let makanSehatText = '-';
+                if (typeof jurnal.makanSehat === 'object' && jurnal.makanSehat !== null) {
+                    const meals = [];
+                    if (jurnal.makanSehat.sarapan) meals.push('Sarapan');
+                    if (jurnal.makanSehat.siang) meals.push('Siang');
+                    if (jurnal.makanSehat.malam) meals.push('Malam');
+                    makanSehatText = meals.length > 0 ? meals.join(', ') : '-';
+                } else if (jurnal.makanSehat) {
+                    makanSehatText = 'Ya';
+                }
+                
+                // Format belajar data
+                let belajarText = '-';
+                if (Array.isArray(jurnal.gemarBelajar) && jurnal.gemarBelajar.length > 0) {
+                    const totalDurasi = jurnal.gemarBelajar.reduce((sum, act) => sum + (act.durasi || 0), 0);
+                    belajarText = `${jurnal.gemarBelajar.length} kegiatan (${totalDurasi} menit)`;
+                } else if (jurnal.gemarBelajar) {
+                    belajarText = jurnal.gemarBelajar;
+                }
+                
+                // Format masyarakat data
+                let masyarakatText = '-';
+                if (Array.isArray(jurnal.bermasyarakat) && jurnal.bermasyarakat.length > 0) {
+                    const totalDurasi = jurnal.bermasyarakat.reduce((sum, act) => sum + (act.durasi || 0), 0);
+                    masyarakatText = `${jurnal.bermasyarakat.length} kegiatan (${totalDurasi} menit)`;
+                } else if (jurnal.bermasyarakat) {
+                    masyarakatText = jurnal.bermasyarakat;
+                }
+                
+                return `<tr class="hover:bg-gray-50">
+                    <td class="px-3 py-2 border border-gray-300 whitespace-nowrap">${new Date(jurnal.tanggal).toLocaleDateString('id-ID')}</td>
+                    <td class="px-3 py-2 border border-gray-300 whitespace-nowrap">${jurnal.bangunPagi || '-'}</td>
+                    <td class="px-3 py-2 border border-gray-300">${beribadahText}</td>
+                    <td class="px-3 py-2 border border-gray-300">${jurnal.berolahraga || '-'}</td>
+                    <td class="px-3 py-2 border border-gray-300">${makanSehatText}</td>
+                    <td class="px-3 py-2 border border-gray-300">${belajarText}</td>
+                    <td class="px-3 py-2 border border-gray-300">${masyarakatText}</td>
+                    <td class="px-3 py-2 border border-gray-300 whitespace-nowrap">${jurnal.tidurCepat || '-'}</td>
+                    <td class="px-3 py-2 border border-gray-300 whitespace-nowrap">
                         <button onclick="showDetailJurnal(${jurnal.id})" class="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600">Detail</button>
                     </td>
-                </tr>`
-            ).join('');
+                </tr>`;
+            }).join('');
         }
 
         function showDetailJurnal(jurnalId) {
@@ -1918,5 +1956,5 @@
             checkboxes.forEach(cb => cb.checked = false);
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aaaf8d0612df9f',t:'MTc1OTgxMTY2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aab878536cdf9f',t:'MTc1OTgxMjAyOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
