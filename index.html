@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal Digital 7 Kebiasaan Anak Indonesia Hebat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .habit-card {
+            transition: all 0.3s ease;
+        }
+        .habit-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Login Page -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">🇮🇩 Jurnal Digital</h1>
+                <p class="text-lg text-indigo-600 font-semibold">7 Kebiasaan Anak Indonesia Hebat</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input type="text" id="username" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Masukkan username">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Masukkan password">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <select id="role" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">Pilih Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="guru">Guru Wali</option>
+                        <option value="siswa">Siswa</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition duration-200 font-semibold">
+                    Masuk
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="hidden min-h-screen">
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <h1 class="text-2xl font-bold text-gray-800">Dashboard Admin</h1>
+                    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Logout</button>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="max-w-7xl mx-auto p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">📚 Data Jurusan</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="namaJurusan" placeholder="Nama Jurusan" class="w-full px-3 py-2 border rounded-lg">
+                        <input type="text" id="kodeJurusan" placeholder="Kode Jurusan" class="w-full px-3 py-2 border rounded-lg">
+                        <button onclick="tambahJurusan()" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">Tambah Jurusan</button>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium mb-2">Upload Data Jurusan (XLS)</label>
+                        <input type="file" id="fileJurusan" accept=".xls,.xlsx" class="w-full px-3 py-2 border rounded-lg">
+                        <button onclick="uploadJurusan()" class="w-full mt-2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">Upload File</button>
+                        <button onclick="downloadTemplateJurusan()" class="w-full mt-2 bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-600">Download Template</button>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">👨‍🏫 Data Guru Wali</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="namaGuru" placeholder="Nama Guru" class="w-full px-3 py-2 border rounded-lg">
+                        <input type="text" id="jabatanGuru" placeholder="Jabatan Guru" class="w-full px-3 py-2 border rounded-lg">
+                        <select id="jurusanGuruSelect" class="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Pilih Jurusan</option>
+                        </select>
+                        <button onclick="tambahGuru()" id="btnTambahGuru" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">Tambah Guru</button>
+                        <button onclick="batalEditGuru()" id="btnBatalGuru" class="w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 hidden">Batal Edit</button>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium mb-2">Upload Data Guru (XLS)</label>
+                        <input type="file" id="fileGuru" accept=".xls,.xlsx" class="w-full px-3 py-2 border rounded-lg">
+                        <button onclick="uploadGuru()" class="w-full mt-2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">Upload File</button>
+                        <button onclick="downloadTemplateGuru()" class="w-full mt-2 bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-600">Download Template</button>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">👨‍🎓 Data Siswa</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="namaSiswa" placeholder="Nama Siswa" class="w-full px-3 py-2 border rounded-lg">
+                        <input type="text" id="kelasSiswa" placeholder="Kelas" class="w-full px-3 py-2 border rounded-lg">
+                        <select id="jurusanSiswaSelect" class="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Pilih Jurusan</option>
+                        </select>
+                        <button onclick="tambahSiswa()" id="btnTambahSiswa" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">Tambah Siswa</button>
+                        <button onclick="batalEditSiswa()" id="btnBatalSiswa" class="w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 hidden">Batal Edit</button>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium mb-2">Upload Data Siswa (XLS)</label>
+                        <input type="file" id="fileSiswa" accept=".xls,.xlsx" class="w-full px-3 py-2 border rounded-lg">
+                        <button onclick="uploadSiswa()" class="w-full mt-2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">Upload File</button>
+                        <button onclick="downloadTemplateSiswa()" class="w-full mt-2 bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-600">Download Template</button>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🔗 Tambah Mapping Guru-Siswa</h3>
+                    <div class="space-y-4">
+                        <select id="pilihGuru" class="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Pilih Guru Wali</option>
+                        </select>
+                        <div id="jurusanCheckbox" class="space-y-2">
+                            <p class="text-sm font-medium">Pilih Jurusan:</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Filter Siswa berdasarkan Jurusan:</label>
+                            <select id="filterJurusanSiswa" onchange="filterSiswaByJurusan()" class="w-full px-3 py-2 border rounded-lg">
+                                <option value="">Semua Jurusan</option>
+                            </select>
+                        </div>
+                        <select id="pilihSiswa" multiple class="w-full px-3 py-2 border rounded-lg h-32">
+                            <option value="">Pilih Siswa (Ctrl+Click untuk multiple)</option>
+                        </select>
+                        <button onclick="tugaskanMonitoring()" id="btnTambahMapping" class="w-full bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600">Tambah Mapping</button>
+                        <button onclick="batalEditMapping()" id="btnBatalMapping" class="w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 hidden">Batal Edit</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">📚 Tabel Data Jurusan</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-4 py-2 text-left">Nama Jurusan</th>
+                                    <th class="px-4 py-2 text-left">Kode</th>
+                                    <th class="px-4 py-2 text-left">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelJurusan">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">👨‍🏫 Tabel Data Guru Wali</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-4 py-2 text-left">Nama Guru</th>
+                                    <th class="px-4 py-2 text-left">Jabatan</th>
+                                    <th class="px-4 py-2 text-left">Jurusan</th>
+                                    <th class="px-4 py-2 text-left">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelGuru">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">👨‍🎓 Tabel Data Siswa</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-4 py-2 text-left">Nama Siswa</th>
+                                    <th class="px-4 py-2 text-left">Kelas</th>
+                                    <th class="px-4 py-2 text-left">Jurusan</th>
+                                    <th class="px-4 py-2 text-left">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelSiswa">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🔗 Tabel Data Mapping Guru Wali - Siswa</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-4 py-2 text-left">Guru Wali</th>
+                                    <th class="px-4 py-2 text-left">Jurusan</th>
+                                    <th class="px-4 py-2 text-left">Siswa</th>
+                                    <th class="px-4 py-2 text-left">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelMapping">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guru Dashboard -->
+    <div id="guruDashboard" class="hidden min-h-screen">
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <h1 class="text-2xl font-bold text-gray-800">Dashboard Guru Wali</h1>
+                    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Logout</button>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="max-w-7xl mx-auto p-6">
+            <div class="bg-white rounded-xl p-6 card-shadow mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">🔍 Filter Data Jurnal</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Filter Kelas</label>
+                        <select id="filterKelas" class="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Semua Kelas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Filter Jurusan</label>
+                        <div id="filterJurusanCheckbox" class="space-y-1 max-h-24 overflow-y-auto border rounded-lg p-2">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Tanggal Input</label>
+                        <input type="date" id="filterTanggal" class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Filter Agama</label>
+                        <select id="filterAgama" class="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Semua Agama</option>
+                            <option value="Islam">Islam</option>
+                            <option value="Kristen">Kristen</option>
+                            <option value="Katolik">Katolik</option>
+                            <option value="Hindu">Hindu</option>
+                            <option value="Buddha">Buddha</option>
+                            <option value="Konghucu">Konghucu</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="filterData()" class="mt-4 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">Filter Data</button>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Data Jurnal Siswa</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-2 text-left">Nama Siswa</th>
+                                <th class="px-4 py-2 text-left">Kelas</th>
+                                <th class="px-4 py-2 text-left">Jurusan</th>
+                                <th class="px-4 py-2 text-left">Tanggal</th>
+                                <th class="px-4 py-2 text-left">Bangun Pagi</th>
+                                <th class="px-4 py-2 text-left">Beribadah</th>
+                                <th class="px-4 py-2 text-left">Berolahraga</th>
+                                <th class="px-4 py-2 text-left">Makan Sehat</th>
+                                <th class="px-4 py-2 text-left">Gemar Belajar</th>
+                                <th class="px-4 py-2 text-left">Bermasyarakat</th>
+                                <th class="px-4 py-2 text-left">Tidur Cepat</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelJurnal">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Siswa Dashboard -->
+    <div id="siswaDashboard" class="hidden min-h-screen">
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <h1 class="text-2xl font-bold text-gray-800">Dashboard Siswa</h1>
+                    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Logout</button>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="max-w-7xl mx-auto p-6">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">📝 Jurnal Harian</h2>
+                <p class="text-lg text-indigo-600">7 Kebiasaan Anak Indonesia Hebat</p>
+                <p class="text-gray-600 mt-2">Tanggal: <span id="tanggalHari"></span></p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1: Bangun Pagi -->
+                <div class="bg-white rounded-xl p-6 card-shadow habit-card">
+                    <div class="flex items-center mb-4">
+                        <span class="text-3xl mr-3">🌅</span>
+                        <h3 class="text-xl font-semibold text-gray-800">Bangun Pagi</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Waktu Bangun</label>
+                            <input type="time" id="waktuBangun" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 2: Beribadah -->
+                <div class="bg-white rounded-xl p-6 card-shadow habit-card">
+                    <div class="flex items-center mb-4">
+                        <span class="text-3xl mr-3">🤲</span>
+                        <h3 class="text-xl font-semibold text-gray-800">Beribadah</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Agama</label>
+                            <select id="agamaSiswa" onchange="updateIbadahForm()" class="w-full px-3 py-2 border rounded-lg">
+                                <option value="">Pilih Agama</option>
+                                <option value="Islam">Islam</option>
+                                <option value="Kristen">Kristen</option>
+                                <option value="Katolik">Katolik</option>
+                                <option value="Hindu">Hindu</option>
+                                <option value="Buddha">Buddha</option>
+                                <option value="Konghucu">Konghucu</option>
+                            </select>
+                        </div>
+                        <div id="formIbadah"></div>
+                    </div>
+                </div>
+                
+                <!-- Card 3: Berolahraga -->
+                <div class="bg-white rounded-xl p-6 card-shadow habit-card">
+                    <div class="flex items-center mb-4">
+                        <span class="text-3xl mr-3">🏃‍♂️</span>
+                        <h3 class="text-xl font-semibold text-gray-800">Berolahraga</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Jenis Olahraga</label>
+                            <input type="text" id="jenisOlahraga" placeholder="Contoh: Lari, Push up, Sepak Bola" class="w-full px-3 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Durasi (menit)</label>
+                            <input type="number" id="durasiOlahraga" placeholder="30" class="w-full px-3 py-2 border rounded-lg">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 4: Makan Sehat -->
+                <div class="bg-white rounded-xl p-6 card-shadow habit-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-3">🥗</span>
+                            <h3 class="text-xl font-semibold text-gray-800">Makan Sehat</h3>
+                        </div>
+                        <button onclick="showMakanDetail()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">Detail</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm font-medium mb-2">🌅 Sarapan (06:00 - 09:00)</p>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <label class="flex items-center"><input type="checkbox" id="sarapanKarbo" class="mr-2"> Karbohidrat</label>
+                                <label class="flex items-center"><input type="checkbox" id="sarapanProtein" class="mr-2"> Protein</label>
+                                <label class="flex items-center"><input type="checkbox" id="sarapanSayur" class="mr-2"> Sayuran</label>
+                                <label class="flex items-center"><input type="checkbox" id="sarapanBuah" class="mr-2"> Buah</label>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium mb-2">☀️ Makan Siang (12:00 - 14:00)</p>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <label class="flex items-center"><input type="checkbox" id="siangKarbo" class="mr-2"> Karbohidrat</label>
+                                <label class="flex items-center"><input type="checkbox" id="siangProtein" class="mr-2"> Protein</label>
+                                <label class="flex items-center"><input type="checkbox" id="siangSayur" class="mr-2"> Sayuran</label>
+                                <label class="flex items-center"><input type="checkbox" id="siangBuah" class="mr-2"> Buah</label>
+                                <label class="flex items-center"><input type="checkbox" id="siangMinuman" class="mr-2"> Minuman Sehat</label>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium mb-2">🌙 Makan Malam (18:00 - 20:00)</p>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <label class="flex items-center"><input type="checkbox" id="malamKarbo" class="mr-2"> Karbohidrat</label>
+                                <label class="flex items-center"><input type="checkbox" id="malamProtein" class="mr-2"> Protein</label>
+                                <label class="flex items-center"><input type="checkbox" id="malamSayur" class="mr-2"> Sayuran</label>
+                                <label class="flex items-center"><input type="checkbox" id="malamBuah" class="mr-2"> Buah</label>
+                                <label class="flex items-center"><input type="checkbox" id="malamMinuman" class="mr-2"> Minuman Sehat</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 5: Gemar Belajar -->
+                <div class="bg-white rounded-xl p-6 card-shadow habit-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-3">📚</span>
+                            <h3 class="text-xl font-semibold text-gray-800">Gemar Belajar</h3>
+                        </div>
+                        <button onclick="showBelajarDetail()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">📋 Detail Kegiatan Belajar</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div id="belajarSummary" class="text-sm text-gray-600">
+                            <p>Belum ada kegiatan belajar</p>
+                        </div>
+                        <div class="hidden">
+                            <textarea id="kegiatanBelajar" class="w-full px-3 py-2 border rounded-lg h-20 resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 6: Bermasyarakat -->
+                <div class="bg-white rounded-xl p-6 card-shadow habit-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-3">🤝</span>
+                            <h3 class="text-xl font-semibold text-gray-800">Bermasyarakat</h3>
+                        </div>
+                        <button onclick="showMasyarakatDetail()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">📋 Detail Kegiatan Bermasyarakat</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div id="masyarakatSummary" class="text-sm text-gray-600">
+                            <p>Belum ada kegiatan bermasyarakat</p>
+                        </div>
+                        <div class="hidden">
+                            <textarea id="kegiatanMasyarakat" class="w-full px-3 py-2 border rounded-lg h-20 resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 7: Tidur Cepat -->
+                <div class="bg-white rounded-xl p-6 card-shadow habit-card">
+                    <div class="flex items-center mb-4">
+                        <span class="text-3xl mr-3">😴</span>
+                        <h3 class="text-xl font-semibold text-gray-800">Tidur Cepat</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Waktu Tidur</label>
+                            <input type="time" id="waktuTidur" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <button onclick="simpanJurnal()" class="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600 text-lg font-semibold">
+                    💾 Simpan Jurnal Hari Ini
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 card-shadow mt-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">📋 Riwayat Jurnal Saya</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-2 text-left">Tanggal</th>
+                                <th class="px-4 py-2 text-left">Bangun Pagi</th>
+                                <th class="px-4 py-2 text-left">Beribadah</th>
+                                <th class="px-4 py-2 text-left">Berolahraga</th>
+                                <th class="px-4 py-2 text-left">Makan Sehat</th>
+                                <th class="px-4 py-2 text-left">Gemar Belajar</th>
+                                <th class="px-4 py-2 text-left">Bermasyarakat</th>
+                                <th class="px-4 py-2 text-left">Tidur Cepat</th>
+                                <th class="px-4 py-2 text-left">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="riwayatJurnal">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Makan -->
+    <div id="modalMakan" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 max-w-2xl w-full max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">🥗 Panduan Makan Sehat</h3>
+                <button onclick="closeMakanDetail()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-orange-600 mb-2">🌅 Pagi Hari (06:00 - 09:00)</h4>
+                    <p class="text-sm">Contoh: Saya Makan Nasi, Lauk Ikan Gurame Bakar, Sayur Sop, Buah Naga, dan Minum Susu</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-600 mb-2">☀️ Siang Hari (12:00 - 14:00)</h4>
+                    <p class="text-sm">Contoh: Saya Makan Nasi, Lauk Ayam Goreng, Sayur Bayam, Buah Apel, dan Minum Air Putih</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-purple-600 mb-2">🌙 Malam Hari (18:00 - 20:00)</h4>
+                    <p class="text-sm">Contoh: Saya Makan Buah Pisang dan Minum Teh Hangat</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-600 mb-2">💡 Tips Makan Sehat</h4>
+                    <ul class="text-sm space-y-1">
+                        <li>• Makan 3 kali sehari dengan porsi seimbang</li>
+                        <li>• Konsumsi sayur dan buah setiap hari</li>
+                        <li>• Minum air putih minimal 8 gelas per hari</li>
+                        <li>• Hindari makanan berlemak berlebihan</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Belajar -->
+    <div id="modalBelajar" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">📚 Detail Kegiatan Belajar</h3>
+                <button onclick="closeBelajarDetail()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div id="belajarActivities" class="space-y-3">
+                        <!-- Activities will be added here -->
+                    </div>
+                    <button onclick="addBelajarActivity()" class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">+ Tambah Kegiatan</button>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-600 mb-2">💡 Tips Belajar Efektif</h4>
+                    <ul class="text-sm space-y-1">
+                        <li>• Buat jadwal belajar yang teratur</li>
+                        <li>• Pilih tempat belajar yang nyaman dan tenang</li>
+                        <li>• Gunakan teknik pomodoro (25 menit fokus, 5 menit istirahat)</li>
+                        <li>• Buat catatan dengan metode mind mapping</li>
+                        <li>• Diskusi dengan teman untuk pemahaman lebih baik</li>
+                        <li>• Review materi secara berkala</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-between">
+                <div id="belajarSummaryModal" class="text-sm text-gray-600">
+                    <p>Total: 0 kegiatan, 0 menit</p>
+                </div>
+                <button onclick="saveBelajarData()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Bermasyarakat -->
+    <div id="modalMasyarakat" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">🤝 Detail Kegiatan Bermasyarakat</h3>
+                <button onclick="closeMasyarakatDetail()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div id="masyarakatActivities" class="space-y-3">
+                        <!-- Activities will be added here -->
+                    </div>
+                    <button onclick="addMasyarakatActivity()" class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">+ Tambah Kegiatan</button>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-600 mb-2">💡 Tips Bermasyarakat</h4>
+                    <ul class="text-sm space-y-1">
+                        <li>• Aktif mengikuti kegiatan RT/RW</li>
+                        <li>• Bantu tetangga yang membutuhkan</li>
+                        <li>• Jaga kebersihan lingkungan bersama</li>
+                        <li>• Hormati perbedaan dalam masyarakat</li>
+                        <li>• Ikut serta dalam gotong royong</li>
+                        <li>• Jadi teladan yang baik di lingkungan</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-between">
+                <div id="masyarakatSummaryModal" class="text-sm text-gray-600">
+                    <p>Total: 0 kegiatan, 0 menit</p>
+                </div>
+                <button onclick="saveMasyarakatData()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Jurnal -->
+    <div id="modalDetailJurnal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">📋 Detail Jurnal Harian</h3>
+                <div class="flex space-x-2">
+                    <button onclick="cetakPDF()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">📄 Cetak PDF</button>
+                    <button onclick="closeDetailJurnal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+            </div>
+            <div id="detailJurnalContent" class="space-y-4">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let currentUser = null;
+        let dataGuru = [];
+        let dataSiswa = [];
+        let dataJurnal = [];
+        let dataJurusan = [];
+        let penugasanMonitoring = [];
+        let editingGuru = null;
+        let editingSiswa = null;
+        let editingMapping = null;
+        let currentDetailJurnal = null;
+        let belajarActivities = [];
+        let masyarakatActivities = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('tanggalHari').textContent = new Date().toLocaleDateString('id-ID');
+            loadSampleData();
+        });
+
+        // Sample Data
+        function loadSampleData() {
+            dataJurusan = [
+                {id: 1, nama: 'Rekayasa Perangkat Lunak', kode: 'RPL'},
+                {id: 2, nama: 'Teknik Komputer dan Jaringan', kode: 'TKJ'},
+                {id: 3, nama: 'Multimedia', kode: 'MM'}
+            ];
+            
+            dataGuru = [
+                {id: 1, nama: 'Budi Santoso', jabatan: 'Guru Wali Kelas', jurusan: 'RPL'},
+                {id: 2, nama: 'Siti Aminah', jabatan: 'Guru Wali Kelas', jurusan: 'TKJ'}
+            ];
+            
+            dataSiswa = [
+                {id: 1, nama: 'Ahmad Rizki', kelas: 'XII', jurusan: 'RPL', agama: 'Islam'},
+                {id: 2, nama: 'Sari Dewi', kelas: 'XI', jurusan: 'TKJ', agama: 'Islam'},
+                {id: 3, nama: 'Budi Pratama', kelas: 'X', jurusan: 'MM', agama: 'Kristen'}
+            ];
+            
+            // Sample jurnal data
+            dataJurnal = [
+                {
+                    id: 1,
+                    siswaId: 1,
+                    tanggal: '2024-01-15',
+                    bangunPagi: '05:30',
+                    beribadah: ['Subuh', 'Dzuhur', 'Ashar'],
+                    berolahraga: 'Lari - 30 menit',
+                    makanSehat: {sarapan: true, siang: true, malam: false},
+                    gemarBelajar: 'Belajar Kelompok Membahas PR Matematika',
+                    bermasyarakat: 'Mengikuti Kegiatan Siskamling',
+                    tidurCepat: '21:00'
+                }
+            ];
+            
+            updateDropdowns();
+        }
+
+        // Login Function
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            if (!username || !password || !role) {
+                alert('Mohon lengkapi semua field!');
+                return;
+            }
+            
+            currentUser = {username, role};
+            
+            // Hide login, show appropriate dashboard
+            document.getElementById('loginPage').classList.add('hidden');
+            
+            if (role === 'admin') {
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                updateAdminDisplay();
+            } else if (role === 'guru') {
+                document.getElementById('guruDashboard').classList.remove('hidden');
+                updateGuruDisplay();
+            } else if (role === 'siswa') {
+                document.getElementById('siswaDashboard').classList.remove('hidden');
+                updateRiwayatJurnal();
+            }
+        });
+
+        // Logout Function
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('guruDashboard').classList.add('hidden');
+            document.getElementById('siswaDashboard').classList.add('hidden');
+            
+            // Reset form
+            document.getElementById('loginForm').reset();
+        }
+
+        // Admin Functions - Jurusan
+        function tambahJurusan() {
+            const nama = document.getElementById('namaJurusan').value;
+            const kode = document.getElementById('kodeJurusan').value;
+            
+            if (!nama || !kode) {
+                alert('Mohon lengkapi semua field!');
+                return;
+            }
+            
+            const newJurusan = {
+                id: dataJurusan.length + 1,
+                nama,
+                kode
+            };
+            
+            dataJurusan.push(newJurusan);
+            updateAdminDisplay();
+            
+            // Reset form
+            document.getElementById('namaJurusan').value = '';
+            document.getElementById('kodeJurusan').value = '';
+            
+            alert('Data jurusan berhasil ditambahkan!');
+        }
+
+        function editJurusan(id) {
+            const jurusan = dataJurusan.find(j => j.id === id);
+            if (jurusan) {
+                document.getElementById('namaJurusan').value = jurusan.nama;
+                document.getElementById('kodeJurusan').value = jurusan.kode;
+                editingJurusan = id;
+                
+                document.querySelector('#namaJurusan').parentElement.parentElement.querySelector('button').textContent = 'Update Jurusan';
+            }
+        }
+
+        function hapusJurusan(id) {
+            if (confirm('Apakah Anda yakin menghapus data ini?')) {
+                dataJurusan = dataJurusan.filter(j => j.id !== id);
+                updateAdminDisplay();
+                alert('Data jurusan berhasil dihapus!');
+            }
+        }
+
+        // Admin Functions - Guru
+        function tambahGuru() {
+            const nama = document.getElementById('namaGuru').value;
+            const jabatan = document.getElementById('jabatanGuru').value;
+            const jurusan = document.getElementById('jurusanGuruSelect').value;
+            
+            if (!nama || !jabatan || !jurusan) {
+                alert('Mohon lengkapi semua field!');
+                return;
+            }
+            
+            if (editingGuru) {
+                // Update existing guru
+                const index = dataGuru.findIndex(g => g.id === editingGuru);
+                if (index !== -1) {
+                    dataGuru[index] = {
+                        id: editingGuru,
+                        nama,
+                        jabatan,
+                        jurusan
+                    };
+                    alert('Data guru berhasil diupdate!');
+                }
+                editingGuru = null;
+                document.getElementById('btnTambahGuru').textContent = 'Tambah Guru';
+                document.getElementById('btnBatalGuru').classList.add('hidden');
+            } else {
+                // Add new guru
+                const newGuru = {
+                    id: dataGuru.length + 1,
+                    nama,
+                    jabatan,
+                    jurusan
+                };
+                dataGuru.push(newGuru);
+                alert('Data guru berhasil ditambahkan!');
+            }
+            
+            updateAdminDisplay();
+            
+            // Reset form
+            document.getElementById('namaGuru').value = '';
+            document.getElementById('jabatanGuru').value = '';
+            document.getElementById('jurusanGuruSelect').value = '';
+        }
+
+        function editGuru(id) {
+            const guru = dataGuru.find(g => g.id === id);
+            if (guru) {
+                document.getElementById('namaGuru').value = guru.nama;
+                document.getElementById('jabatanGuru').value = guru.jabatan;
+                document.getElementById('jurusanGuruSelect').value = guru.jurusan;
+                editingGuru = id;
+                
+                document.getElementById('btnTambahGuru').textContent = 'Update Guru';
+                document.getElementById('btnBatalGuru').classList.remove('hidden');
+            }
+        }
+
+        function hapusGuru(id) {
+            if (confirm('Apakah Anda yakin menghapus data ini?')) {
+                dataGuru = dataGuru.filter(g => g.id !== id);
+                updateAdminDisplay();
+                alert('Data guru berhasil dihapus!');
+            }
+        }
+
+        function batalEditGuru() {
+            editingGuru = null;
+            document.getElementById('namaGuru').value = '';
+            document.getElementById('jabatanGuru').value = '';
+            document.getElementById('jurusanGuruSelect').value = '';
+            document.getElementById('btnTambahGuru').textContent = 'Tambah Guru';
+            document.getElementById('btnBatalGuru').classList.add('hidden');
+        }
+
+        // Admin Functions - Siswa
+        function tambahSiswa() {
+            const nama = document.getElementById('namaSiswa').value;
+            const kelas = document.getElementById('kelasSiswa').value;
+            const jurusan = document.getElementById('jurusanSiswaSelect').value;
+            
+            if (!nama || !kelas || !jurusan) {
+                alert('Mohon lengkapi semua field!');
+                return;
+            }
+            
+            if (editingSiswa) {
+                // Update existing siswa
+                const index = dataSiswa.findIndex(s => s.id === editingSiswa);
+                if (index !== -1) {
+                    dataSiswa[index] = {
+                        ...dataSiswa[index],
+                        nama,
+                        kelas,
+                        jurusan
+                    };
+                    alert('Data siswa berhasil diupdate!');
+                }
+                editingSiswa = null;
+                document.getElementById('btnTambahSiswa').textContent = 'Tambah Siswa';
+                document.getElementById('btnBatalSiswa').classList.add('hidden');
+            } else {
+                // Add new siswa
+                const newSiswa = {
+                    id: dataSiswa.length + 1,
+                    nama,
+                    kelas,
+                    jurusan,
+                    agama: 'Islam' // Default
+                };
+                dataSiswa.push(newSiswa);
+                alert('Data siswa berhasil ditambahkan!');
+            }
+            
+            updateAdminDisplay();
+            
+            // Reset form
+            document.getElementById('namaSiswa').value = '';
+            document.getElementById('kelasSiswa').value = '';
+            document.getElementById('jurusanSiswaSelect').value = '';
+        }
+
+        function editSiswa(id) {
+            const siswa = dataSiswa.find(s => s.id === id);
+            if (siswa) {
+                document.getElementById('namaSiswa').value = siswa.nama;
+                document.getElementById('kelasSiswa').value = siswa.kelas;
+                document.getElementById('jurusanSiswaSelect').value = siswa.jurusan;
+                editingSiswa = id;
+                
+                document.getElementById('btnTambahSiswa').textContent = 'Update Siswa';
+                document.getElementById('btnBatalSiswa').classList.remove('hidden');
+            }
+        }
+
+        function hapusSiswa(id) {
+            if (confirm('Apakah Anda yakin menghapus data ini?')) {
+                dataSiswa = dataSiswa.filter(s => s.id !== id);
+                updateAdminDisplay();
+                alert('Data siswa berhasil dihapus!');
+            }
+        }
+
+        function batalEditSiswa() {
+            editingSiswa = null;
+            document.getElementById('namaSiswa').value = '';
+            document.getElementById('kelasSiswa').value = '';
+            document.getElementById('jurusanSiswaSelect').value = '';
+            document.getElementById('btnTambahSiswa').textContent = 'Tambah Siswa';
+            document.getElementById('btnBatalSiswa').classList.add('hidden');
+        }
+
+        // Template Downloads
+        function downloadTemplateJurusan() {
+            const template = [
+                ['Nama Jurusan', 'Kode Jurusan'],
+                ['Rekayasa Perangkat Lunak', 'RPL'],
+                ['Teknik Komputer dan Jaringan', 'TKJ']
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(template);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Template Jurusan');
+            XLSX.writeFile(wb, 'template_jurusan.xlsx');
+        }
+
+        function downloadTemplateGuru() {
+            const template = [
+                ['Nama Guru', 'Jabatan Guru', 'Jurusan'],
+                ['Budi Santoso', 'Guru Wali Kelas', 'RPL'],
+                ['Siti Aminah', 'Guru Wali Kelas', 'TKJ']
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(template);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Template Guru');
+            XLSX.writeFile(wb, 'template_guru.xlsx');
+        }
+
+        function downloadTemplateSiswa() {
+            const template = [
+                ['Nama Siswa', 'Kelas', 'Jurusan'],
+                ['Ahmad Rizki', 'XII', 'RPL'],
+                ['Sari Dewi', 'XI', 'TKJ']
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(template);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Template Siswa');
+            XLSX.writeFile(wb, 'template_siswa.xlsx');
+        }
+
+        // Upload Functions
+        function uploadJurusan() {
+            const fileInput = document.getElementById('fileJurusan');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Pilih file terlebih dahulu!');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                // Skip header row
+                for (let i = 1; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if (row[0] && row[1]) {
+                        dataJurusan.push({
+                            id: dataJurusan.length + 1,
+                            nama: row[0],
+                            kode: row[1]
+                        });
+                    }
+                }
+                
+                updateAdminDisplay();
+                alert('Data jurusan berhasil diupload!');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function uploadGuru() {
+            const fileInput = document.getElementById('fileGuru');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Pilih file terlebih dahulu!');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                // Skip header row
+                for (let i = 1; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if (row[0] && row[1] && row[2]) {
+                        dataGuru.push({
+                            id: dataGuru.length + 1,
+                            nama: row[0],
+                            jabatan: row[1],
+                            jurusan: row[2]
+                        });
+                    }
+                }
+                
+                updateAdminDisplay();
+                alert('Data guru berhasil diupload!');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function uploadSiswa() {
+            const fileInput = document.getElementById('fileSiswa');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Pilih file terlebih dahulu!');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                // Skip header row
+                for (let i = 1; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if (row[0] && row[1] && row[2]) {
+                        dataSiswa.push({
+                            id: dataSiswa.length + 1,
+                            nama: row[0],
+                            kelas: row[1],
+                            jurusan: row[2],
+                            agama: 'Islam' // Default
+                        });
+                    }
+                }
+                
+                updateAdminDisplay();
+                alert('Data siswa berhasil diupload!');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Mapping Functions
+        function tugaskanMonitoring() {
+            const guruId = document.getElementById('pilihGuru').value;
+            const selectedJurusan = Array.from(document.querySelectorAll('#jurusanCheckbox input:checked')).map(cb => cb.value);
+            const selectedSiswa = Array.from(document.getElementById('pilihSiswa').selectedOptions).map(option => option.value);
+            
+            if (!guruId || selectedJurusan.length === 0 || selectedSiswa.length === 0) {
+                alert('Mohon lengkapi semua pilihan!');
+                return;
+            }
+            
+            if (editingMapping) {
+                // Update existing mapping
+                const index = penugasanMonitoring.findIndex(m => m.id === editingMapping);
+                if (index !== -1) {
+                    penugasanMonitoring[index] = {
+                        id: editingMapping,
+                        guruId: parseInt(guruId),
+                        jurusan: selectedJurusan,
+                        siswaIds: selectedSiswa.map(id => parseInt(id))
+                    };
+                    alert('Mapping berhasil diupdate!');
+                }
+                editingMapping = null;
+                document.getElementById('btnTambahMapping').textContent = 'Tambah Mapping';
+                document.getElementById('btnBatalMapping').classList.add('hidden');
+            } else {
+                // Add new mapping
+                penugasanMonitoring.push({
+                    id: penugasanMonitoring.length + 1,
+                    guruId: parseInt(guruId),
+                    jurusan: selectedJurusan,
+                    siswaIds: selectedSiswa.map(id => parseInt(id))
+                });
+                alert('Mapping berhasil ditambahkan!');
+            }
+            
+            updateAdminDisplay();
+            
+            // Reset form
+            document.getElementById('pilihGuru').value = '';
+            document.querySelectorAll('#jurusanCheckbox input').forEach(cb => cb.checked = false);
+            document.getElementById('pilihSiswa').selectedIndex = -1;
+        }
+
+        function editMapping(id) {
+            const mapping = penugasanMonitoring.find(m => m.id === id);
+            if (mapping) {
+                document.getElementById('pilihGuru').value = mapping.guruId;
+                
+                // Check jurusan checkboxes
+                document.querySelectorAll('#jurusanCheckbox input').forEach(cb => {
+                    cb.checked = mapping.jurusan.includes(cb.value);
+                });
+                
+                // Select siswa
+                const pilihSiswa = document.getElementById('pilihSiswa');
+                Array.from(pilihSiswa.options).forEach(option => {
+                    option.selected = mapping.siswaIds.includes(parseInt(option.value));
+                });
+                
+                editingMapping = id;
+                document.getElementById('btnTambahMapping').textContent = 'Update Mapping';
+                document.getElementById('btnBatalMapping').classList.remove('hidden');
+            }
+        }
+
+        function hapusMapping(id) {
+            if (confirm('Apakah Anda yakin menghapus data ini?')) {
+                penugasanMonitoring = penugasanMonitoring.filter(m => m.id !== id);
+                updateAdminDisplay();
+                alert('Mapping berhasil dihapus!');
+            }
+        }
+
+        function batalEditMapping() {
+            editingMapping = null;
+            document.getElementById('pilihGuru').value = '';
+            document.querySelectorAll('#jurusanCheckbox input').forEach(cb => cb.checked = false);
+            document.getElementById('pilihSiswa').selectedIndex = -1;
+            document.getElementById('btnTambahMapping').textContent = 'Tambah Mapping';
+            document.getElementById('btnBatalMapping').classList.add('hidden');
+        }
+
+        function filterSiswaByJurusan() {
+            const selectedJurusan = document.getElementById('filterJurusanSiswa').value;
+            const pilihSiswa = document.getElementById('pilihSiswa');
+            
+            pilihSiswa.innerHTML = '<option value="">Pilih Siswa (Ctrl+Click untuk multiple)</option>';
+            
+            const filteredSiswa = selectedJurusan ? 
+                dataSiswa.filter(siswa => siswa.jurusan === selectedJurusan) : 
+                dataSiswa;
+            
+            filteredSiswa.forEach(siswa => {
+                const option = document.createElement('option');
+                option.value = siswa.id;
+                option.textContent = `${siswa.nama} - ${siswa.kelas} ${siswa.jurusan}`;
+                pilihSiswa.appendChild(option);
+            });
+        }
+
+        function updateAdminDisplay() {
+            // Update tabel jurusan
+            const tabelJurusan = document.getElementById('tabelJurusan');
+            tabelJurusan.innerHTML = dataJurusan.map(jurusan => 
+                `<tr class="border-b">
+                    <td class="px-4 py-2">${jurusan.nama}</td>
+                    <td class="px-4 py-2">${jurusan.kode}</td>
+                    <td class="px-4 py-2">
+                        <button onclick="editJurusan(${jurusan.id})" class="bg-yellow-500 text-white px-2 py-1 rounded text-sm hover:bg-yellow-600 mr-1">Edit</button>
+                        <button onclick="hapusJurusan(${jurusan.id})" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600">Hapus</button>
+                    </td>
+                </tr>`
+            ).join('');
+            
+            // Update tabel guru
+            const tabelGuru = document.getElementById('tabelGuru');
+            tabelGuru.innerHTML = dataGuru.map(guru => 
+                `<tr class="border-b">
+                    <td class="px-4 py-2">${guru.nama}</td>
+                    <td class="px-4 py-2">${guru.jabatan}</td>
+                    <td class="px-4 py-2">${guru.jurusan}</td>
+                    <td class="px-4 py-2">
+                        <button onclick="editGuru(${guru.id})" class="bg-yellow-500 text-white px-2 py-1 rounded text-sm hover:bg-yellow-600 mr-1">Edit</button>
+                        <button onclick="hapusGuru(${guru.id})" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600">Hapus</button>
+                    </td>
+                </tr>`
+            ).join('');
+            
+            // Update tabel siswa
+            const tabelSiswa = document.getElementById('tabelSiswa');
+            tabelSiswa.innerHTML = dataSiswa.map(siswa => 
+                `<tr class="border-b">
+                    <td class="px-4 py-2">${siswa.nama}</td>
+                    <td class="px-4 py-2">${siswa.kelas}</td>
+                    <td class="px-4 py-2">${siswa.jurusan}</td>
+                    <td class="px-4 py-2">
+                        <button onclick="editSiswa(${siswa.id})" class="bg-yellow-500 text-white px-2 py-1 rounded text-sm hover:bg-yellow-600 mr-1">Edit</button>
+                        <button onclick="hapusSiswa(${siswa.id})" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600">Hapus</button>
+                    </td>
+                </tr>`
+            ).join('');
+            
+            // Update tabel mapping
+            const tabelMapping = document.getElementById('tabelMapping');
+            tabelMapping.innerHTML = penugasanMonitoring.map(mapping => {
+                const guru = dataGuru.find(g => g.id === mapping.guruId);
+                const siswaNames = mapping.siswaIds.map(id => {
+                    const siswa = dataSiswa.find(s => s.id === id);
+                    return siswa ? siswa.nama : 'Unknown';
+                }).join(', ');
+                
+                return `<tr class="border-b">
+                    <td class="px-4 py-2">${guru ? guru.nama : 'Unknown'}</td>
+                    <td class="px-4 py-2">${mapping.jurusan.join(', ')}</td>
+                    <td class="px-4 py-2">${siswaNames}</td>
+                    <td class="px-4 py-2">
+                        <button onclick="editMapping(${mapping.id})" class="bg-yellow-500 text-white px-2 py-1 rounded text-sm hover:bg-yellow-600 mr-1">Edit</button>
+                        <button onclick="hapusMapping(${mapping.id})" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600">Hapus</button>
+                    </td>
+                </tr>`;
+            }).join('');
+            
+            updateDropdowns();
+        }
+
+        function updateDropdowns() {
+            // Update dropdown jurusan untuk guru
+            const jurusanGuruSelect = document.getElementById('jurusanGuruSelect');
+            if (jurusanGuruSelect) {
+                jurusanGuruSelect.innerHTML = '<option value="">Pilih Jurusan</option>' + 
+                    dataJurusan.map(jurusan => `<option value="${jurusan.kode}">${jurusan.nama}</option>`).join('');
+            }
+            
+            // Update dropdown jurusan untuk siswa
+            const jurusanSiswaSelect = document.getElementById('jurusanSiswaSelect');
+            if (jurusanSiswaSelect) {
+                jurusanSiswaSelect.innerHTML = '<option value="">Pilih Jurusan</option>' + 
+                    dataJurusan.map(jurusan => `<option value="${jurusan.kode}">${jurusan.nama}</option>`).join('');
+            }
+            
+            // Update dropdown guru
+            const pilihGuru = document.getElementById('pilihGuru');
+            if (pilihGuru) {
+                pilihGuru.innerHTML = '<option value="">Pilih Guru Wali</option>' + 
+                    dataGuru.map(guru => `<option value="${guru.id}">${guru.nama}</option>`).join('');
+            }
+            
+            // Update checkbox jurusan
+            const jurusanSet = new Set(dataJurusan.map(jurusan => jurusan.kode));
+            const jurusanCheckbox = document.getElementById('jurusanCheckbox');
+            if (jurusanCheckbox) {
+                jurusanCheckbox.innerHTML = '<p class="text-sm font-medium">Pilih Jurusan:</p>' +
+                    Array.from(jurusanSet).map(jurusan => 
+                        `<label class="flex items-center text-sm">
+                            <input type="checkbox" value="${jurusan}" class="mr-2"> ${jurusan}
+                        </label>`
+                    ).join('');
+            }
+            
+            // Update filter jurusan siswa
+            const filterJurusanSiswa = document.getElementById('filterJurusanSiswa');
+            if (filterJurusanSiswa) {
+                filterJurusanSiswa.innerHTML = '<option value="">Semua Jurusan</option>' + 
+                    dataJurusan.map(jurusan => `<option value="${jurusan.kode}">${jurusan.nama}</option>`).join('');
+            }
+            
+            // Update dropdown siswa
+            filterSiswaByJurusan();
+        }
+
+        // Guru Functions
+        function updateGuruDisplay() {
+            // Update filter options
+            const kelasSet = new Set(dataSiswa.map(siswa => siswa.kelas));
+            const filterKelas = document.getElementById('filterKelas');
+            filterKelas.innerHTML = '<option value="">Semua Kelas</option>' + 
+                Array.from(kelasSet).map(kelas => `<option value="${kelas}">${kelas}</option>`).join('');
+            
+            const jurusanSet = new Set(dataSiswa.map(siswa => siswa.jurusan));
+            const filterJurusanCheckbox = document.getElementById('filterJurusanCheckbox');
+            filterJurusanCheckbox.innerHTML = Array.from(jurusanSet).map(jurusan => 
+                `<label class="flex items-center text-sm">
+                    <input type="checkbox" value="${jurusan}" class="mr-1"> ${jurusan}
+                </label>`
+            ).join('');
+            
+            updateTabelJurnal();
+        }
+
+        function filterData() {
+            updateTabelJurnal();
+        }
+
+        function updateTabelJurnal() {
+            const tabelJurnal = document.getElementById('tabelJurnal');
+            
+            // Filter data based on selected filters
+            let filteredData = dataJurnal;
+            
+            const filterKelas = document.getElementById('filterKelas').value;
+            const filterTanggal = document.getElementById('filterTanggal').value;
+            const filterAgama = document.getElementById('filterAgama').value;
+            const selectedJurusan = Array.from(document.querySelectorAll('#filterJurusanCheckbox input:checked')).map(cb => cb.value);
+            
+            if (filterKelas) {
+                filteredData = filteredData.filter(jurnal => {
+                    const siswa = dataSiswa.find(s => s.id === jurnal.siswaId);
+                    return siswa && siswa.kelas === filterKelas;
+                });
+            }
+            
+            if (selectedJurusan.length > 0) {
+                filteredData = filteredData.filter(jurnal => {
+                    const siswa = dataSiswa.find(s => s.id === jurnal.siswaId);
+                    return siswa && selectedJurusan.includes(siswa.jurusan);
+                });
+            }
+            
+            if (filterTanggal) {
+                filteredData = filteredData.filter(jurnal => jurnal.tanggal === filterTanggal);
+            }
+            
+            if (filterAgama) {
+                filteredData = filteredData.filter(jurnal => {
+                    const siswa = dataSiswa.find(s => s.id === jurnal.siswaId);
+                    return siswa && siswa.agama === filterAgama;
+                });
+            }
+            
+            tabelJurnal.innerHTML = filteredData.map(jurnal => {
+                const siswa = dataSiswa.find(s => s.id === jurnal.siswaId);
+                return `<tr class="border-b">
+                    <td class="px-4 py-2">${siswa ? siswa.nama : 'Unknown'}</td>
+                    <td class="px-4 py-2">${siswa ? siswa.kelas : '-'}</td>
+                    <td class="px-4 py-2">${siswa ? siswa.jurusan : '-'}</td>
+                    <td class="px-4 py-2">${jurnal.tanggal}</td>
+                    <td class="px-4 py-2">${jurnal.bangunPagi || '-'}</td>
+                    <td class="px-4 py-2">${jurnal.beribadah ? '✅' : '❌'}</td>
+                    <td class="px-4 py-2">${jurnal.berolahraga || '-'}</td>
+                    <td class="px-4 py-2">${jurnal.makanSehat ? '✅' : '❌'}</td>
+                    <td class="px-4 py-2">${jurnal.gemarBelajar || '-'}</td>
+                    <td class="px-4 py-2">${jurnal.bermasyarakat || '-'}</td>
+                    <td class="px-4 py-2">${jurnal.tidurCepat || '-'}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Siswa Functions
+        function updateIbadahForm() {
+            const agama = document.getElementById('agamaSiswa').value;
+            const formIbadah = document.getElementById('formIbadah');
+            
+            if (agama === 'Islam') {
+                formIbadah.innerHTML = `
+                    <div class="space-y-3">
+                        <p class="text-sm font-medium">Sholat Wajib:</p>
+                        <div class="grid grid-cols-1 gap-2 text-sm">
+                            <label class="flex items-center"><input type="checkbox" id="subuh" class="mr-2"> Subuh (04:30 - 06:00)</label>
+                            <label class="flex items-center"><input type="checkbox" id="dzuhur" class="mr-2"> Dzuhur/Jumat (11:30 - 15:00)</label>
+                            <label class="flex items-center"><input type="checkbox" id="ashar" class="mr-2"> Ashar (15:00 - 18:00)</label>
+                            <label class="flex items-center"><input type="checkbox" id="maghrib" class="mr-2"> Maghrib (18:00 - 19:30)</label>
+                            <label class="flex items-center"><input type="checkbox" id="isya" class="mr-2"> Isya (19:30 - 04:00)</label>
+                        </div>
+                        <p class="text-sm font-medium mt-4">Sholat Sunnah:</p>
+                        <div class="grid grid-cols-1 gap-2 text-sm">
+                            <label class="flex items-center"><input type="checkbox" id="rawatib" class="mr-2"> Shalat Rawatib</label>
+                            <label class="flex items-center"><input type="checkbox" id="dhuha" class="mr-2"> Shalat Dhuha</label>
+                            <label class="flex items-center"><input type="checkbox" id="tahajud" class="mr-2"> Shalat Tahajud</label>
+                        </div>
+                    </div>
+                `;
+            } else {
+                formIbadah.innerHTML = `
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Kegiatan Ibadah</label>
+                        <textarea id="kegiatanIbadah" placeholder="Tuliskan kegiatan ibadah yang dilakukan" class="w-full px-3 py-2 border rounded-lg h-20 resize-none"></textarea>
+                    </div>
+                `;
+            }
+        }
+
+        function showMakanDetail() {
+            document.getElementById('modalMakan').classList.remove('hidden');
+        }
+
+        function closeMakanDetail() {
+            document.getElementById('modalMakan').classList.add('hidden');
+        }
+
+        function simpanJurnal() {
+            const tanggal = new Date().toISOString().split('T')[0];
+            
+            // Check if journal already exists for today
+            const existingJurnal = dataJurnal.find(j => j.tanggal === tanggal && j.siswaId === 1); // Assuming siswa ID 1 for demo
+            
+            if (existingJurnal) {
+                if (!confirm('Jurnal hari ini sudah ada. Apakah ingin menimpa data?')) {
+                    return;
+                }
+                // Remove existing journal
+                dataJurnal = dataJurnal.filter(j => !(j.tanggal === tanggal && j.siswaId === 1));
+            }
+            
+            const jurnal = {
+                id: dataJurnal.length + 1,
+                siswaId: 1, // Demo siswa ID
+                tanggal: tanggal,
+                bangunPagi: document.getElementById('waktuBangun').value,
+                beribadah: getIbadahData(),
+                berolahraga: `${document.getElementById('jenisOlahraga').value} - ${document.getElementById('durasiOlahraga').value} menit`,
+                makanSehat: getMakanSehatData(),
+                gemarBelajar: belajarActivities,
+                bermasyarakat: masyarakatActivities,
+                tidurCepat: document.getElementById('waktuTidur').value
+            };
+            
+            dataJurnal.push(jurnal);
+            alert('Jurnal berhasil disimpan! 🎉');
+            
+            // Reset form
+            resetSiswaForm();
+            
+            // Update riwayat jurnal
+            updateRiwayatJurnal();
+        }
+
+        function updateRiwayatJurnal() {
+            const riwayatJurnal = document.getElementById('riwayatJurnal');
+            if (!riwayatJurnal) return;
+            
+            const siswaJurnal = dataJurnal.filter(j => j.siswaId === 1); // Demo siswa ID 1
+            
+            riwayatJurnal.innerHTML = siswaJurnal.map(jurnal => 
+                `<tr class="border-b">
+                    <td class="px-4 py-2">${new Date(jurnal.tanggal).toLocaleDateString('id-ID')}</td>
+                    <td class="px-4 py-2">${jurnal.bangunPagi || '-'}</td>
+                    <td class="px-4 py-2">${Array.isArray(jurnal.beribadah) ? '✅' : (jurnal.beribadah ? '✅' : '❌')}</td>
+                    <td class="px-4 py-2">${jurnal.berolahraga ? '✅' : '❌'}</td>
+                    <td class="px-4 py-2">${jurnal.makanSehat ? '✅' : '❌'}</td>
+                    <td class="px-4 py-2">${(Array.isArray(jurnal.gemarBelajar) && jurnal.gemarBelajar.length > 0) || jurnal.gemarBelajar ? '✅' : '❌'}</td>
+                    <td class="px-4 py-2">${(Array.isArray(jurnal.bermasyarakat) && jurnal.bermasyarakat.length > 0) || jurnal.bermasyarakat ? '✅' : '❌'}</td>
+                    <td class="px-4 py-2">${jurnal.tidurCepat || '-'}</td>
+                    <td class="px-4 py-2">
+                        <button onclick="showDetailJurnal(${jurnal.id})" class="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600">Detail</button>
+                    </td>
+                </tr>`
+            ).join('');
+        }
+
+        function showDetailJurnal(jurnalId) {
+            const jurnal = dataJurnal.find(j => j.id === jurnalId);
+            if (!jurnal) return;
+            
+            currentDetailJurnal = jurnal;
+            const siswa = dataSiswa.find(s => s.id === jurnal.siswaId);
+            
+            const detailContent = document.getElementById('detailJurnalContent');
+            detailContent.innerHTML = `
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <h4 class="font-semibold text-lg mb-2">Informasi Siswa</h4>
+                    <p><strong>Nama:</strong> ${siswa ? siswa.nama : 'Unknown'}</p>
+                    <p><strong>Kelas:</strong> ${siswa ? siswa.kelas : '-'}</p>
+                    <p><strong>Jurusan:</strong> ${siswa ? siswa.jurusan : '-'}</p>
+                    <p><strong>Tanggal:</strong> ${new Date(jurnal.tanggal).toLocaleDateString('id-ID')}</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <h5 class="font-semibold text-orange-600 mb-2">• Bangun Pagi</h5>
+                        <p>${jurnal.bangunPagi || 'Tidak diisi'}</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h5 class="font-semibold text-blue-600 mb-2">• Beribadah</h5>
+                        <p>${Array.isArray(jurnal.beribadah) ? jurnal.beribadah.join(', ') : (jurnal.beribadah || 'Tidak diisi')}</p>
+                    </div>
+                    
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h5 class="font-semibold text-green-600 mb-2">• Berolahraga</h5>
+                        <p>${jurnal.berolahraga || 'Tidak diisi'}</p>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <h5 class="font-semibold text-yellow-600 mb-2">• Makan Sehat</h5>
+                        <p>${typeof jurnal.makanSehat === 'object' ? 
+                            `Sarapan: ${jurnal.makanSehat.sarapan ? '✅' : '❌'}, Siang: ${jurnal.makanSehat.siang ? '✅' : '❌'}, Malam: ${jurnal.makanSehat.malam ? '✅' : '❌'}` : 
+                            (jurnal.makanSehat ? 'Sudah makan sehat' : 'Tidak diisi')}</p>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <h5 class="font-semibold text-purple-600 mb-2">• Gemar Belajar</h5>
+                        <p>${Array.isArray(jurnal.gemarBelajar) && jurnal.gemarBelajar.length > 0 ? 
+                            jurnal.gemarBelajar.map(act => `${act.jenis} - ${act.mapel}: ${act.deskripsi} (${act.durasi} menit)`).join('; ') : 
+                            (jurnal.gemarBelajar || 'Tidak diisi')}</p>
+                    </div>
+                    
+                    <div class="bg-indigo-50 p-4 rounded-lg">
+                        <h5 class="font-semibold text-indigo-600 mb-2">• Bermasyarakat</h5>
+                        <p>${Array.isArray(jurnal.bermasyarakat) && jurnal.bermasyarakat.length > 0 ? 
+                            jurnal.bermasyarakat.map(act => `${act.jenis} di ${act.lokasi}: ${act.detail} (${act.durasi} menit)`).join('; ') : 
+                            (jurnal.bermasyarakat || 'Tidak diisi')}</p>
+                    </div>
+                    
+                    <div class="bg-pink-50 p-4 rounded-lg">
+                        <h5 class="font-semibold text-pink-600 mb-2">• Tidur Cepat</h5>
+                        <p>${jurnal.tidurCepat || 'Tidak diisi'}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('modalDetailJurnal').classList.remove('hidden');
+        }
+
+        function closeDetailJurnal() {
+            document.getElementById('modalDetailJurnal').classList.add('hidden');
+            currentDetailJurnal = null;
+        }
+
+        function cetakPDF() {
+            if (!currentDetailJurnal) return;
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const siswa = dataSiswa.find(s => s.id === currentDetailJurnal.siswaId);
+            const tanggal = new Date(currentDetailJurnal.tanggal).toLocaleDateString('id-ID');
+            
+            // Header
+            doc.setFontSize(16);
+            doc.text('JURNAL DIGITAL 7 KEBIASAAN ANAK INDONESIA HEBAT', 20, 20);
+            
+            doc.setFontSize(12);
+            doc.text(`Nama: ${siswa ? siswa.nama : 'Unknown'}`, 20, 35);
+            doc.text(`Kelas: ${siswa ? siswa.kelas : '-'}`, 20, 45);
+            doc.text(`Jurusan: ${siswa ? siswa.jurusan : '-'}`, 20, 55);
+            doc.text(`Tanggal: ${tanggal}`, 20, 65);
+            
+            // Content
+            let yPos = 85;
+            const habits = [
+                { title: '• Bangun Pagi', value: currentDetailJurnal.bangunPagi || 'Tidak diisi' },
+                { title: '• Beribadah', value: Array.isArray(currentDetailJurnal.beribadah) ? currentDetailJurnal.beribadah.join(', ') : (currentDetailJurnal.beribadah || 'Tidak diisi') },
+                { title: '• Berolahraga', value: currentDetailJurnal.berolahraga || 'Tidak diisi' },
+                { title: '• Makan Sehat', value: typeof currentDetailJurnal.makanSehat === 'object' ? 
+                    `Sarapan: ${currentDetailJurnal.makanSehat.sarapan ? 'Ya' : 'Tidak'}, Siang: ${currentDetailJurnal.makanSehat.siang ? 'Ya' : 'Tidak'}, Malam: ${currentDetailJurnal.makanSehat.malam ? 'Ya' : 'Tidak'}` : 
+                    (currentDetailJurnal.makanSehat ? 'Sudah makan sehat' : 'Tidak diisi') },
+                { title: '• Gemar Belajar', value: currentDetailJurnal.gemarBelajar || 'Tidak diisi' },
+                { title: '• Bermasyarakat', value: currentDetailJurnal.bermasyarakat || 'Tidak diisi' },
+                { title: '• Tidur Cepat', value: currentDetailJurnal.tidurCepat || 'Tidak diisi' }
+            ];
+            
+            habits.forEach(habit => {
+                doc.setFont(undefined, 'bold');
+                doc.text(habit.title, 20, yPos);
+                doc.setFont(undefined, 'normal');
+                
+                const lines = doc.splitTextToSize(habit.value, 160);
+                doc.text(lines, 20, yPos + 10);
+                yPos += 10 + (lines.length * 5) + 10;
+            });
+            
+            // Signatures
+            yPos += 20;
+            doc.text('Tanda Tangan Orang Tua/Wali Murid', 20, yPos);
+            doc.text('Tanda Tangan Guru Wali', 120, yPos);
+            
+            yPos += 30;
+            doc.text('(_________________________)', 20, yPos);
+            doc.text('(_________________________)', 120, yPos);
+            
+            doc.save(`Jurnal_${siswa ? siswa.nama.replace(/\s+/g, '_') : 'Unknown'}_${tanggal.replace(/\//g, '-')}.pdf`);
+        }
+
+        function getIbadahData() {
+            const agama = document.getElementById('agamaSiswa').value;
+            if (agama === 'Islam') {
+                const sholat = [];
+                if (document.getElementById('subuh')?.checked) sholat.push('Subuh');
+                if (document.getElementById('dzuhur')?.checked) sholat.push('Dzuhur');
+                if (document.getElementById('ashar')?.checked) sholat.push('Ashar');
+                if (document.getElementById('maghrib')?.checked) sholat.push('Maghrib');
+                if (document.getElementById('isya')?.checked) sholat.push('Isya');
+                if (document.getElementById('rawatib')?.checked) sholat.push('Rawatib');
+                if (document.getElementById('dhuha')?.checked) sholat.push('Dhuha');
+                if (document.getElementById('tahajud')?.checked) sholat.push('Tahajud');
+                return sholat.length > 0;
+            } else {
+                return document.getElementById('kegiatanIbadah')?.value || '';
+            }
+        }
+
+        function getMakanSehatData() {
+            const sarapan = ['sarapanKarbo', 'sarapanProtein', 'sarapanSayur', 'sarapanBuah'].some(id => 
+                document.getElementById(id)?.checked
+            );
+            const siang = ['siangKarbo', 'siangProtein', 'siangSayur', 'siangBuah', 'siangMinuman'].some(id => 
+                document.getElementById(id)?.checked
+            );
+            const malam = ['malamKarbo', 'malamProtein', 'malamSayur', 'malamBuah', 'malamMinuman'].some(id => 
+                document.getElementById(id)?.checked
+            );
+            return sarapan || siang || malam;
+        }
+
+        // Belajar Functions
+        function showBelajarDetail() {
+            document.getElementById('modalBelajar').classList.remove('hidden');
+            updateBelajarActivities();
+        }
+
+        function closeBelajarDetail() {
+            document.getElementById('modalBelajar').classList.add('hidden');
+        }
+
+        function addBelajarActivity() {
+            const activityId = Date.now();
+            const activityHtml = `
+                <div class="border rounded-lg p-4 bg-gray-50" id="belajar-${activityId}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Jenis Kegiatan</label>
+                            <select class="w-full px-3 py-2 border rounded-lg text-sm" onchange="updateBelajarSummary()">
+                                <option value="">Pilih Jenis Kegiatan</option>
+                                <option value="Mengerjakan PR">Mengerjakan PR</option>
+                                <option value="Membaca Buku">Membaca Buku</option>
+                                <option value="Latihan Soal">Latihan Soal</option>
+                                <option value="Video Pembelajaran">Video Pembelajaran</option>
+                                <option value="Membuat Catatan">Membuat Catatan</option>
+                                <option value="Belajar Kelompok">Belajar Kelompok</option>
+                                <option value="Diskusi">Diskusi</option>
+                                <option value="Presentasi">Presentasi</option>
+                                <option value="Mengerjakan Proyek">Mengerjakan Proyek</option>
+                                <option value="Les Privat">Les Privat</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Mata Pelajaran</label>
+                            <select class="w-full px-3 py-2 border rounded-lg text-sm">
+                                <option value="">Pilih Mata Pelajaran</option>
+                                <option value="Matematika">Matematika</option>
+                                <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                <option value="IPA/Fisika">IPA/Fisika</option>
+                                <option value="IPA/Kimia">IPA/Kimia</option>
+                                <option value="IPA/Biologi">IPA/Biologi</option>
+                                <option value="IPS/Sejarah">IPS/Sejarah</option>
+                                <option value="IPS/Geografi">IPS/Geografi</option>
+                                <option value="IPS/Ekonomi">IPS/Ekonomi</option>
+                                <option value="PKn">PKn</option>
+                                <option value="Agama">Agama</option>
+                                <option value="Seni Budaya">Seni Budaya</option>
+                                <option value="Penjaskes">Penjaskes</option>
+                                <option value="Produktif">Produktif</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-2">Deskripsi Kegiatan</label>
+                            <textarea placeholder="Contoh: Belajar Kelompok Membahas PR Matematika tentang Integral" class="w-full px-3 py-2 border rounded-lg text-sm h-16 resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Durasi (menit)</label>
+                            <input type="number" placeholder="90" class="w-full px-3 py-2 border rounded-lg text-sm" onchange="updateBelajarSummary()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Waktu</label>
+                            <select class="w-full px-3 py-2 border rounded-lg text-sm">
+                                <option value="">Pilih Waktu</option>
+                                <option value="Pagi">Pagi (06:00-12:00)</option>
+                                <option value="Siang">Siang (12:00-15:00)</option>
+                                <option value="Sore">Sore (15:00-18:00)</option>
+                                <option value="Malam">Malam (18:00-22:00)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="removeBelajarActivity(${activityId})" class="mt-3 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">Hapus</button>
+                </div>
+            `;
+            
+            document.getElementById('belajarActivities').insertAdjacentHTML('beforeend', activityHtml);
+            updateBelajarSummary();
+        }
+
+        function removeBelajarActivity(activityId) {
+            document.getElementById(`belajar-${activityId}`).remove();
+            updateBelajarSummary();
+        }
+
+        function updateBelajarActivities() {
+            if (document.getElementById('belajarActivities').children.length === 0) {
+                addBelajarActivity();
+            }
+            updateBelajarSummary();
+        }
+
+        function updateBelajarSummary() {
+            const activities = document.getElementById('belajarActivities').children;
+            let totalActivities = 0;
+            let totalDuration = 0;
+            
+            for (let activity of activities) {
+                const jenis = activity.querySelector('select').value;
+                const durasi = parseInt(activity.querySelector('input[type="number"]').value) || 0;
+                
+                if (jenis) totalActivities++;
+                totalDuration += durasi;
+            }
+            
+            document.getElementById('belajarSummaryModal').innerHTML = 
+                `<p>Total: ${totalActivities} kegiatan, ${totalDuration} menit</p>`;
+        }
+
+        function saveBelajarData() {
+            const activities = document.getElementById('belajarActivities').children;
+            const savedActivities = [];
+            
+            for (let activity of activities) {
+                const jenis = activity.querySelector('select').value;
+                const mapel = activity.querySelectorAll('select')[1].value;
+                const deskripsi = activity.querySelector('textarea').value;
+                const durasi = parseInt(activity.querySelector('input[type="number"]').value) || 0;
+                const waktu = activity.querySelectorAll('select')[2].value;
+                
+                if (jenis && deskripsi) {
+                    savedActivities.push({
+                        jenis, mapel, deskripsi, durasi, waktu
+                    });
+                }
+            }
+            
+            belajarActivities = savedActivities;
+            
+            // Update summary in card
+            const summary = document.getElementById('belajarSummary');
+            if (savedActivities.length > 0) {
+                const totalDuration = savedActivities.reduce((sum, act) => sum + act.durasi, 0);
+                summary.innerHTML = `
+                    <p class="text-green-600 font-medium">${savedActivities.length} kegiatan belajar (${totalDuration} menit)</p>
+                    <p class="text-sm">${savedActivities[0].deskripsi.substring(0, 50)}${savedActivities[0].deskripsi.length > 50 ? '...' : ''}</p>
+                `;
+            } else {
+                summary.innerHTML = '<p>Belum ada kegiatan belajar</p>';
+            }
+            
+            closeBelajarDetail();
+            alert('Data kegiatan belajar berhasil disimpan!');
+        }
+
+        // Masyarakat Functions
+        function showMasyarakatDetail() {
+            document.getElementById('modalMasyarakat').classList.remove('hidden');
+            updateMasyarakatActivities();
+        }
+
+        function closeMasyarakatDetail() {
+            document.getElementById('modalMasyarakat').classList.add('hidden');
+        }
+
+        function addMasyarakatActivity() {
+            const activityId = Date.now();
+            const activityHtml = `
+                <div class="border rounded-lg p-4 bg-gray-50" id="masyarakat-${activityId}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Jenis Kegiatan</label>
+                            <select class="w-full px-3 py-2 border rounded-lg text-sm" onchange="updateMasyarakatSummary()">
+                                <option value="">Pilih Jenis Kegiatan</option>
+                                <option value="Siskamling/Ronda">Siskamling/Ronda</option>
+                                <option value="Gotong Royong">Gotong Royong</option>
+                                <option value="Kerja Bakti">Kerja Bakti</option>
+                                <option value="Membantu Tetangga">Membantu Tetangga</option>
+                                <option value="Takziah">Takziah</option>
+                                <option value="Arisan RT/RW">Arisan RT/RW</option>
+                                <option value="Pengajian">Pengajian</option>
+                                <option value="Karang Taruna">Karang Taruna</option>
+                                <option value="Posyandu">Posyandu</option>
+                                <option value="Bakti Sosial">Bakti Sosial</option>
+                                <option value="Bersih-bersih Masjid">Bersih-bersih Masjid</option>
+                                <option value="Donor Darah">Donor Darah</option>
+                                <option value="Pelatihan Warga">Pelatihan Warga</option>
+                                <option value="Lomba 17 Agustus">Lomba 17 Agustus</option>
+                                <option value="Rapat RT/RW">Rapat RT/RW</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Lokasi Kegiatan</label>
+                            <input type="text" placeholder="Contoh: RT 05/RW 02, Masjid Al-Ikhlas" class="w-full px-3 py-2 border rounded-lg text-sm">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-2">Detail Kegiatan</label>
+                            <textarea placeholder="Contoh: Mengikuti Kegiatan Siskamling di RT 05 atau Gotong Royong Membersihkan Selokan di Jalan Mawar" class="w-full px-3 py-2 border rounded-lg text-sm h-16 resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Durasi (menit)</label>
+                            <input type="number" placeholder="120" class="w-full px-3 py-2 border rounded-lg text-sm" onchange="updateMasyarakatSummary()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Waktu</label>
+                            <select class="w-full px-3 py-2 border rounded-lg text-sm">
+                                <option value="">Pilih Waktu</option>
+                                <option value="Pagi">Pagi (06:00-12:00)</option>
+                                <option value="Siang">Siang (12:00-15:00)</option>
+                                <option value="Sore">Sore (15:00-18:00)</option>
+                                <option value="Malam">Malam (18:00-22:00)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="removeMasyarakatActivity(${activityId})" class="mt-3 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">Hapus</button>
+                </div>
+            `;
+            
+            document.getElementById('masyarakatActivities').insertAdjacentHTML('beforeend', activityHtml);
+            updateMasyarakatSummary();
+        }
+
+        function removeMasyarakatActivity(activityId) {
+            document.getElementById(`masyarakat-${activityId}`).remove();
+            updateMasyarakatSummary();
+        }
+
+        function updateMasyarakatActivities() {
+            if (document.getElementById('masyarakatActivities').children.length === 0) {
+                addMasyarakatActivity();
+            }
+            updateMasyarakatSummary();
+        }
+
+        function updateMasyarakatSummary() {
+            const activities = document.getElementById('masyarakatActivities').children;
+            let totalActivities = 0;
+            let totalDuration = 0;
+            
+            for (let activity of activities) {
+                const jenis = activity.querySelector('select').value;
+                const durasi = parseInt(activity.querySelector('input[type="number"]').value) || 0;
+                
+                if (jenis) totalActivities++;
+                totalDuration += durasi;
+            }
+            
+            document.getElementById('masyarakatSummaryModal').innerHTML = 
+                `<p>Total: ${totalActivities} kegiatan, ${totalDuration} menit</p>`;
+        }
+
+        function saveMasyarakatData() {
+            const activities = document.getElementById('masyarakatActivities').children;
+            const savedActivities = [];
+            
+            for (let activity of activities) {
+                const jenis = activity.querySelector('select').value;
+                const lokasi = activity.querySelector('input[type="text"]').value;
+                const detail = activity.querySelector('textarea').value;
+                const durasi = parseInt(activity.querySelector('input[type="number"]').value) || 0;
+                const waktu = activity.querySelectorAll('select')[1].value;
+                
+                if (jenis && detail) {
+                    savedActivities.push({
+                        jenis, lokasi, detail, durasi, waktu
+                    });
+                }
+            }
+            
+            masyarakatActivities = savedActivities;
+            
+            // Update summary in card
+            const summary = document.getElementById('masyarakatSummary');
+            if (savedActivities.length > 0) {
+                const totalDuration = savedActivities.reduce((sum, act) => sum + act.durasi, 0);
+                summary.innerHTML = `
+                    <p class="text-green-600 font-medium">${savedActivities.length} kegiatan bermasyarakat (${totalDuration} menit)</p>
+                    <p class="text-sm">${savedActivities[0].detail.substring(0, 50)}${savedActivities[0].detail.length > 50 ? '...' : ''}</p>
+                `;
+            } else {
+                summary.innerHTML = '<p>Belum ada kegiatan bermasyarakat</p>';
+            }
+            
+            closeMasyarakatDetail();
+            alert('Data kegiatan bermasyarakat berhasil disimpan!');
+        }
+
+        function resetSiswaForm() {
+            document.getElementById('waktuBangun').value = '';
+            document.getElementById('agamaSiswa').value = '';
+            document.getElementById('formIbadah').innerHTML = '';
+            document.getElementById('jenisOlahraga').value = '';
+            document.getElementById('durasiOlahraga').value = '';
+            document.getElementById('kegiatanBelajar').value = '';
+            document.getElementById('kegiatanMasyarakat').value = '';
+            document.getElementById('waktuTidur').value = '';
+            
+            // Reset activities
+            belajarActivities = [];
+            masyarakatActivities = [];
+            document.getElementById('belajarSummary').innerHTML = '<p>Belum ada kegiatan belajar</p>';
+            document.getElementById('masyarakatSummary').innerHTML = '<p>Belum ada kegiatan bermasyarakat</p>';
+            
+            // Reset checkboxes
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aaa6a21403df9f',t:'MTc1OTgxMTI5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
