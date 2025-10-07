@@ -1629,91 +1629,96 @@
             if (!currentDetailJurnal) return;
             
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('landscape', 'mm', 'a4'); // Format landscape
+            const doc = new jsPDF('landscape', 'mm', 'a4'); // Format landscape A4 (297x210mm)
             
             const siswa = dataSiswa.find(s => s.id === currentDetailJurnal.siswaId);
             const tanggal = new Date(currentDetailJurnal.tanggal).toLocaleDateString('id-ID');
             
-            // Header dengan logo dan kop surat (landscape: 297mm width)
+            // Header dengan desain profesional (landscape: 297mm width)
             doc.setFillColor(41, 128, 185);
-            doc.rect(0, 0, 297, 25, 'F');
+            doc.rect(0, 0, 297, 30, 'F');
             
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(18);
+            doc.setFontSize(20);
             doc.setFont(undefined, 'bold');
-            doc.text('JURNAL HARIAN SISWA', 148.5, 12, { align: 'center' });
-            doc.setFontSize(14);
-            doc.text('7 KEBIASAAN ANAK INDONESIA HEBAT', 148.5, 20, { align: 'center' });
+            doc.text('JURNAL HARIAN SISWA', 148.5, 15, { align: 'center' });
+            doc.setFontSize(16);
+            doc.text('7 KEBIASAAN ANAK INDONESIA HEBAT', 148.5, 24, { align: 'center' });
             
             // Reset text color
             doc.setTextColor(0, 0, 0);
             
-            // Info Siswa dalam box (landscape layout)
+            // Info Siswa dalam box yang lebih besar (landscape layout)
             doc.setFillColor(245, 245, 245);
-            doc.rect(15, 30, 267, 20, 'F');
+            doc.rect(10, 35, 277, 25, 'F');
             doc.setLineWidth(0.5);
-            doc.rect(15, 30, 267, 20);
+            doc.rect(10, 35, 277, 25);
             
-            doc.setFontSize(11);
+            doc.setFontSize(12);
             doc.setFont(undefined, 'bold');
-            doc.text('IDENTITAS SISWA', 20, 38);
+            doc.text('IDENTITAS SISWA', 15, 44);
             
             doc.setFont(undefined, 'normal');
-            doc.setFontSize(10);
-            doc.text(`Nama Siswa`, 20, 44);
-            doc.text(`: ${siswa ? siswa.nama : 'Unknown'}`, 60, 44);
-            doc.text(`Kelas`, 150, 44);
-            doc.text(`: ${siswa ? siswa.kelas : '-'}`, 170, 44);
-            doc.text(`Jurusan`, 220, 44);
-            doc.text(`: ${siswa ? siswa.jurusan : '-'}`, 250, 44);
-            doc.text(`Tanggal`, 20, 48);
-            doc.text(`: ${tanggal}`, 60, 48);
+            doc.setFontSize(11);
+            doc.text(`Nama Siswa`, 15, 50);
+            doc.text(`: ${siswa ? siswa.nama : 'Unknown'}`, 55, 50);
+            doc.text(`Kelas`, 140, 50);
+            doc.text(`: ${siswa ? siswa.kelas : '-'}`, 165, 50);
+            doc.text(`Jurusan`, 210, 50);
+            doc.text(`: ${siswa ? siswa.jurusan : '-'}`, 245, 50);
+            doc.text(`Tanggal`, 15, 56);
+            doc.text(`: ${tanggal}`, 55, 56);
             
-            // Tabel dengan desain profesional (landscape)
-            const startY = 60;
-            const colWidths = [20, 80, 177]; // No, Kebiasaan, Detail Kegiatan
+            // Tabel dengan autofit content dan window (landscape)
+            const startY = 70;
+            const pageWidth = 297;
+            const margin = 10;
+            const availableWidth = pageWidth - (2 * margin);
+            
+            // Kolom dengan proporsi yang sesuai untuk autofit window
+            const colWidths = [25, 85, 167]; // Total: 277mm (sesuai available width)
             const tableWidth = colWidths.reduce((sum, width) => sum + width, 0);
             
-            // Header tabel dengan warna biru
+            // Header tabel dengan warna biru yang lebih menarik
             doc.setFillColor(52, 152, 219);
-            doc.rect(15, startY, tableWidth, 15, 'F');
+            doc.rect(margin, startY, tableWidth, 18, 'F');
             
             doc.setTextColor(255, 255, 255);
             doc.setFont(undefined, 'bold');
-            doc.setFontSize(11);
-            doc.text('No', 25, startY + 10);
-            doc.text('7 Kebiasaan Anak Indonesia Hebat', 35, startY + 10);
-            doc.text('Detail Kegiatan Harian Berdasarkan Input Form', 115, startY + 10);
+            doc.setFontSize(12);
+            doc.text('No', margin + 12.5, startY + 12, { align: 'center' });
+            doc.text('7 Kebiasaan Anak Indonesia Hebat', margin + colWidths[0] + 42.5, startY + 12, { align: 'center' });
+            doc.text('Detail Kegiatan Harian Berdasarkan Input Form User', margin + colWidths[0] + colWidths[1] + 83.5, startY + 12, { align: 'center' });
             
-            // Border header
+            // Border header yang tegas
             doc.setDrawColor(0, 0, 0);
-            doc.setLineWidth(0.3);
-            doc.rect(15, startY, colWidths[0], 15);
-            doc.rect(15 + colWidths[0], startY, colWidths[1], 15);
-            doc.rect(15 + colWidths[0] + colWidths[1], startY, colWidths[2], 15);
+            doc.setLineWidth(0.5);
+            doc.rect(margin, startY, colWidths[0], 18);
+            doc.rect(margin + colWidths[0], startY, colWidths[1], 18);
+            doc.rect(margin + colWidths[0] + colWidths[1], startY, colWidths[2], 18);
             
             // Reset text color
             doc.setTextColor(0, 0, 0);
             
-            // Data kebiasaan dengan format sesuai input form
+            // Data kebiasaan dengan format sesuai input form user yang lebih detail
             const habits = [
                 { 
                     no: '1', 
                     title: 'Bangun Pagi\n(Disiplin Waktu)', 
                     value: currentDetailJurnal.bangunPagi ? 
-                        `✅ Waktu Bangun: ${currentDetailJurnal.bangunPagi} WIB\n\n• Siswa berhasil bangun pagi sesuai waktu yang ditentukan\n• Menunjukkan kedisiplinan dalam mengatur waktu harian\n• Memulai aktivitas dengan energi positif dan semangat` : 
-                        '❌ Belum Mengisi Waktu Bangun Pagi\n\n• Siswa belum mengisi waktu bangun pagi di form jurnal\n• Perlu meningkatkan kedisiplinan dalam mengatur waktu\n• Disarankan bangun sebelum jam 06:00 WIB untuk aktivitas optimal'
+                        `✅ WAKTU BANGUN: ${currentDetailJurnal.bangunPagi} WIB\n\n📋 DETAIL INPUT FORM:\n• Siswa berhasil mengisi waktu bangun pagi di form jurnal\n• Menunjukkan kedisiplinan dalam mengatur waktu harian\n• Memulai aktivitas dengan energi positif dan semangat\n\n💡 EVALUASI:\n• Waktu bangun sudah sesuai dengan target pagi hari\n• Konsistensi dalam menerapkan pola bangun pagi yang baik` : 
+                        '❌ BELUM MENGISI WAKTU BANGUN PAGI\n\n📋 STATUS INPUT FORM:\n• Siswa belum mengisi waktu bangun pagi di form jurnal\n• Field waktu bangun masih kosong atau tidak diisi\n\n💡 REKOMENDASI:\n• Perlu meningkatkan kedisiplinan dalam mengatur waktu\n• Disarankan bangun sebelum jam 06:00 WIB\n• Isi form jurnal secara lengkap untuk monitoring yang optimal'
                 },
                 { 
                     no: '2', 
                     title: 'Beribadah\n(Spiritual)', 
                     value: (() => {
                         if (Array.isArray(currentDetailJurnal.beribadah) && currentDetailJurnal.beribadah.length > 0) {
-                            return `✅ Ibadah yang Dilaksanakan: ${currentDetailJurnal.beribadah.join(', ')}\n\n• Total ${currentDetailJurnal.beribadah.length} kegiatan ibadah telah dilaksanakan\n• Menunjukkan ketaatan dan konsistensi dalam beribadah\n• Membangun karakter spiritual yang kuat dan berkesinambungan`;
+                            return `✅ KEGIATAN IBADAH YANG DILAKSANAKAN:\n${currentDetailJurnal.beribadah.map(ibadah => `• ${ibadah}`).join('\n')}\n\n📋 DETAIL INPUT FORM:\n• Total ${currentDetailJurnal.beribadah.length} kegiatan ibadah telah diinput\n• Siswa aktif mengisi checklist kegiatan spiritual\n• Menunjukkan ketaatan dan konsistensi dalam beribadah\n\n💡 EVALUASI:\n• Aktivitas spiritual sudah terlaksana dengan baik\n• Membangun karakter spiritual yang kuat dan berkesinambungan`;
                         } else if (currentDetailJurnal.beribadah && typeof currentDetailJurnal.beribadah === 'string') {
-                            return `✅ Kegiatan Ibadah: ${currentDetailJurnal.beribadah}\n\n• Siswa aktif melaksanakan kegiatan keagamaan\n• Menunjukkan komitmen dalam menjalankan ajaran agama\n• Membangun hubungan spiritual yang baik dengan Tuhan`;
+                            return `✅ KEGIATAN IBADAH: ${currentDetailJurnal.beribadah}\n\n📋 DETAIL INPUT FORM:\n• Siswa telah mengisi kegiatan ibadah di form jurnal\n• Menunjukkan komitmen dalam menjalankan ajaran agama\n• Aktif melaksanakan kegiatan keagamaan\n\n💡 EVALUASI:\n• Membangun hubungan spiritual yang baik dengan Tuhan\n• Konsisten dalam menjalankan kewajiban beribadah`;
                         }
-                        return '❌ Belum Melaksanakan Kegiatan Ibadah\n\n• Siswa belum mengisi kegiatan ibadah di form jurnal\n• Perlu meningkatkan aktivitas spiritual harian\n• Disarankan rutin beribadah sesuai dengan keyakinan masing-masing';
+                        return '❌ BELUM MELAKSANAKAN KEGIATAN IBADAH\n\n📋 STATUS INPUT FORM:\n• Siswa belum mengisi kegiatan ibadah di form jurnal\n• Checklist ibadah masih kosong atau tidak dicentang\n• Field kegiatan spiritual belum diisi\n\n💡 REKOMENDASI:\n• Perlu meningkatkan aktivitas spiritual harian\n• Disarankan rutin beribadah sesuai keyakinan\n• Isi form ibadah secara lengkap untuk evaluasi karakter';
                     })()
                 },
                 { 
@@ -1723,12 +1728,12 @@
                         if (currentDetailJurnal.berolahraga && currentDetailJurnal.berolahraga.trim() !== '' && !currentDetailJurnal.berolahraga.includes('undefined')) {
                             const parts = currentDetailJurnal.berolahraga.split(' - ');
                             if (parts.length >= 2 && parts[0].trim() !== '' && !parts[1].includes('undefined')) {
-                                return `✅ Aktivitas Olahraga: ${currentDetailJurnal.berolahraga}\n\n• Siswa telah melakukan aktivitas fisik sesuai yang diinputkan\n• Menjaga kesehatan dan kebugaran tubuh dengan baik\n• Membangun pola hidup sehat dan aktif secara konsisten`;
+                                return `✅ AKTIVITAS OLAHRAGA: ${currentDetailJurnal.berolahraga}\n\n📋 DETAIL INPUT FORM:\n• Jenis Olahraga: ${parts[0]}\n• Durasi: ${parts[1]}\n• Siswa telah mengisi form olahraga dengan lengkap\n\n💡 EVALUASI:\n• Aktivitas fisik sesuai yang diinputkan dalam form\n• Menjaga kesehatan dan kebugaran tubuh dengan baik\n• Membangun pola hidup sehat dan aktif secara konsisten`;
                             } else if (parts[0].trim() !== '') {
-                                return `✅ Jenis Olahraga: ${parts[0]}\n\n• Siswa telah melakukan aktivitas olahraga\n• Durasi belum diisi lengkap, namun tetap menunjukkan komitmen\n• Disarankan mencatat durasi untuk monitoring yang lebih baik`;
+                                return `✅ JENIS OLAHRAGA: ${parts[0]}\n\n📋 DETAIL INPUT FORM:\n• Siswa telah mengisi jenis olahraga di form\n• Durasi belum diisi lengkap dalam form\n\n💡 EVALUASI:\n• Sudah menunjukkan komitmen berolahraga\n• Disarankan mengisi durasi untuk monitoring yang lebih baik\n• Lengkapi form olahraga untuk evaluasi optimal`;
                             }
                         }
-                        return '❌ Belum Melakukan Aktivitas Olahraga\n\n• Siswa belum mengisi kegiatan olahraga di form jurnal\n• Perlu meningkatkan aktivitas fisik untuk kesehatan\n• Disarankan berolahraga minimal 30 menit per hari';
+                        return '❌ BELUM MELAKUKAN AKTIVITAS OLAHRAGA\n\n📋 STATUS INPUT FORM:\n• Siswa belum mengisi kegiatan olahraga di form jurnal\n• Field jenis olahraga masih kosong\n• Durasi olahraga belum diinput\n\n💡 REKOMENDASI:\n• Perlu meningkatkan aktivitas fisik untuk kesehatan\n• Disarankan berolahraga minimal 30 menit per hari\n• Isi form olahraga secara lengkap (jenis + durasi)';
                     })()
                 },
                 { 
@@ -1737,16 +1742,35 @@
                     value: (() => {
                         if (typeof currentDetailJurnal.makanSehat === 'object' && currentDetailJurnal.makanSehat !== null) {
                             const meals = [];
-                            if (currentDetailJurnal.makanSehat.sarapan) meals.push('Sarapan (06:00-09:00)');
-                            if (currentDetailJurnal.makanSehat.siang) meals.push('Makan Siang (12:00-14:00)');
-                            if (currentDetailJurnal.makanSehat.malam) meals.push('Makan Malam (18:00-20:00)');
+                            const details = [];
+                            if (currentDetailJurnal.makanSehat.sarapan) {
+                                meals.push('Sarapan (06:00-09:00)');
+                                details.push('• Sarapan: ✅ Sudah dicentang di form');
+                            } else {
+                                details.push('• Sarapan: ❌ Belum dicentang di form');
+                            }
+                            if (currentDetailJurnal.makanSehat.siang) {
+                                meals.push('Makan Siang (12:00-14:00)');
+                                details.push('• Makan Siang: ✅ Sudah dicentang di form');
+                            } else {
+                                details.push('• Makan Siang: ❌ Belum dicentang di form');
+                            }
+                            if (currentDetailJurnal.makanSehat.malam) {
+                                meals.push('Makan Malam (18:00-20:00)');
+                                details.push('• Makan Malam: ✅ Sudah dicentang di form');
+                            } else {
+                                details.push('• Makan Malam: ❌ Belum dicentang di form');
+                            }
+                            
                             if (meals.length > 0) {
-                                return `✅ Pola Makan Sehat: ${meals.join(', ')}\n\n• Siswa telah menerapkan ${meals.length} dari 3 waktu makan utama\n• Mengonsumsi makanan bergizi seimbang sesuai jadwal\n• Menjaga pola makan teratur untuk kesehatan optimal`;
+                                return `✅ POLA MAKAN SEHAT: ${meals.join(', ')}\n\n📋 DETAIL INPUT FORM:\n${details.join('\n')}\n• Siswa telah menerapkan ${meals.length} dari 3 waktu makan utama\n\n💡 EVALUASI:\n• Mengonsumsi makanan bergizi seimbang sesuai jadwal\n• Menjaga pola makan teratur untuk kesehatan optimal`;
+                            } else {
+                                return `❌ BELUM MENERAPKAN POLA MAKAN SEHAT\n\n📋 STATUS INPUT FORM:\n${details.join('\n')}\n• Tidak ada waktu makan yang dicentang di form\n\n💡 REKOMENDASI:\n• Perlu meningkatkan asupan gizi seimbang harian\n• Disarankan makan 3x sehari dengan menu bergizi\n• Centang checklist makan sehat di form jurnal`;
                             }
                         } else if (currentDetailJurnal.makanSehat === true) {
-                            return `✅ Menerapkan Pola Makan Sehat\n\n• Siswa telah mengonsumsi makanan sehat\n• Memperhatikan asupan gizi seimbang\n• Menjaga pola makan yang teratur dan bergizi`;
+                            return `✅ MENERAPKAN POLA MAKAN SEHAT\n\n📋 DETAIL INPUT FORM:\n• Siswa telah mengisi pola makan sehat di form\n• Memperhatikan asupan gizi seimbang\n\n💡 EVALUASI:\n• Menjaga pola makan yang teratur dan bergizi\n• Konsisten dalam menerapkan hidup sehat`;
                         }
-                        return '❌ Belum Menerapkan Pola Makan Sehat\n\n• Siswa belum mengisi pola makan sehat di form jurnal\n• Perlu meningkatkan asupan gizi seimbang harian\n• Disarankan makan 3x sehari dengan menu bergizi lengkap';
+                        return '❌ BELUM MENERAPKAN POLA MAKAN SEHAT\n\n📋 STATUS INPUT FORM:\n• Siswa belum mengisi pola makan sehat di form jurnal\n• Checklist makan sehat masih kosong\n• Tidak ada input untuk waktu makan\n\n💡 REKOMENDASI:\n• Perlu meningkatkan asupan gizi seimbang harian\n• Disarankan makan 3x sehari dengan menu bergizi lengkap\n• Isi form makan sehat secara konsisten';
                     })()
                 },
                 { 
@@ -1758,11 +1782,11 @@
                             const kegiatan = currentDetailJurnal.gemarBelajar.map((act, idx) => 
                                 `${idx + 1}. ${act.jenis}${act.mapel ? ' (' + act.mapel + ')' : ''}: ${act.deskripsi} - ${act.durasi || 0} menit`
                             ).join('\n');
-                            return `✅ Total ${currentDetailJurnal.gemarBelajar.length} Kegiatan Belajar (${totalDurasi} menit)\n\n${kegiatan}\n\n• Menunjukkan semangat belajar yang tinggi dan konsisten\n• Aktif dalam berbagai kegiatan pengembangan diri`;
+                            return `✅ TOTAL ${currentDetailJurnal.gemarBelajar.length} KEGIATAN BELAJAR (${totalDurasi} MENIT)\n\n📋 DETAIL INPUT FORM:\n${kegiatan}\n\n💡 EVALUASI:\n• Menunjukkan semangat belajar yang tinggi dan konsisten\n• Aktif dalam berbagai kegiatan pengembangan diri\n• Input form belajar sudah lengkap dengan detail kegiatan`;
                         } else if (currentDetailJurnal.gemarBelajar && typeof currentDetailJurnal.gemarBelajar === 'string' && currentDetailJurnal.gemarBelajar.trim() !== '') {
-                            return `✅ Kegiatan Belajar: ${currentDetailJurnal.gemarBelajar.substring(0, 100)}${currentDetailJurnal.gemarBelajar.length > 100 ? '...' : ''}\n\n• Siswa telah melakukan kegiatan belajar tambahan\n• Menunjukkan inisiatif dalam pengembangan diri\n• Memiliki motivasi belajar yang baik`;
+                            return `✅ KEGIATAN BELAJAR: ${currentDetailJurnal.gemarBelajar.substring(0, 120)}${currentDetailJurnal.gemarBelajar.length > 120 ? '...' : ''}\n\n📋 DETAIL INPUT FORM:\n• Siswa telah mengisi kegiatan belajar di form jurnal\n• Menunjukkan inisiatif dalam pengembangan diri\n\n💡 EVALUASI:\n• Memiliki motivasi belajar yang baik\n• Aktif dalam kegiatan pembelajaran tambahan`;
                         }
-                        return '❌ Belum Melakukan Kegiatan Belajar Tambahan\n\n• Siswa belum mengisi kegiatan belajar di form jurnal\n• Perlu meningkatkan motivasi dan aktivitas belajar\n• Disarankan belajar mandiri minimal 2 jam per hari';
+                        return '❌ BELUM MELAKUKAN KEGIATAN BELAJAR TAMBAHAN\n\n📋 STATUS INPUT FORM:\n• Siswa belum mengisi kegiatan belajar di form jurnal\n• Field detail kegiatan belajar masih kosong\n• Tidak ada input aktivitas pembelajaran\n\n💡 REKOMENDASI:\n• Perlu meningkatkan motivasi dan aktivitas belajar\n• Disarankan belajar mandiri minimal 2 jam per hari\n• Isi form belajar dengan detail kegiatan dan durasi';
                     })()
                 },
                 { 
@@ -1774,128 +1798,135 @@
                             const kegiatan = currentDetailJurnal.bermasyarakat.map((act, idx) => 
                                 `${idx + 1}. ${act.jenis}${act.lokasi ? ' di ' + act.lokasi : ''}: ${act.detail} - ${act.durasi || 0} menit`
                             ).join('\n');
-                            return `✅ Total ${currentDetailJurnal.bermasyarakat.length} Kegiatan Sosial (${totalDurasi} menit)\n\n${kegiatan}\n\n• Aktif berpartisipasi dalam kegiatan kemasyarakatan\n• Menunjukkan kepedulian sosial yang tinggi`;
+                            return `✅ TOTAL ${currentDetailJurnal.bermasyarakat.length} KEGIATAN SOSIAL (${totalDurasi} MENIT)\n\n📋 DETAIL INPUT FORM:\n${kegiatan}\n\n💡 EVALUASI:\n• Aktif berpartisipasi dalam kegiatan kemasyarakatan\n• Menunjukkan kepedulian sosial yang tinggi\n• Input form bermasyarakat sudah lengkap dengan lokasi dan detail`;
                         } else if (currentDetailJurnal.bermasyarakat && typeof currentDetailJurnal.bermasyarakat === 'string' && currentDetailJurnal.bermasyarakat.trim() !== '') {
-                            return `✅ Kegiatan Bermasyarakat: ${currentDetailJurnal.bermasyarakat.substring(0, 100)}${currentDetailJurnal.bermasyarakat.length > 100 ? '...' : ''}\n\n• Siswa telah terlibat dalam kegiatan masyarakat\n• Menunjukkan jiwa sosial dan kepedulian terhadap lingkungan\n• Aktif berkontribusi dalam kehidupan bermasyarakat`;
+                            return `✅ KEGIATAN BERMASYARAKAT: ${currentDetailJurnal.bermasyarakat.substring(0, 120)}${currentDetailJurnal.bermasyarakat.length > 120 ? '...' : ''}\n\n📋 DETAIL INPUT FORM:\n• Siswa telah mengisi kegiatan bermasyarakat di form\n• Menunjukkan jiwa sosial dan kepedulian lingkungan\n\n💡 EVALUASI:\n• Aktif berkontribusi dalam kehidupan bermasyarakat\n• Memiliki kesadaran sosial yang baik`;
                         }
-                        return '❌ Belum Terlibat dalam Kegiatan Masyarakat\n\n• Siswa belum mengisi kegiatan bermasyarakat di form jurnal\n• Perlu meningkatkan kepedulian dan partisipasi sosial\n• Disarankan ikut kegiatan RT/RW atau organisasi kemasyarakatan';
+                        return '❌ BELUM TERLIBAT DALAM KEGIATAN MASYARAKAT\n\n📋 STATUS INPUT FORM:\n• Siswa belum mengisi kegiatan bermasyarakat di form\n• Field aktivitas sosial masih kosong\n• Tidak ada input kegiatan kemasyarakatan\n\n💡 REKOMENDASI:\n• Perlu meningkatkan kepedulian dan partisipasi sosial\n• Disarankan ikut kegiatan RT/RW atau organisasi\n• Isi form bermasyarakat dengan detail kegiatan dan lokasi';
                     })()
                 },
                 { 
                     no: '7', 
                     title: 'Tidur Cepat\n(Manajemen Waktu)', 
                     value: currentDetailJurnal.tidurCepat ? 
-                        `✅ Waktu Tidur: ${currentDetailJurnal.tidurCepat} WIB\n\n• Siswa telah mengatur waktu tidur dengan baik\n• Menerapkan pola tidur yang teratur dan disiplin\n• Menjaga kesehatan dengan istirahat yang cukup dan tepat waktu` : 
-                        '❌ Belum Mengatur Waktu Tidur yang Baik\n\n• Siswa belum mengisi waktu tidur di form jurnal\n• Perlu memperbaiki pola tidur untuk kesehatan optimal\n• Disarankan tidur sebelum jam 22:00 WIB untuk istirahat maksimal'
+                        `✅ WAKTU TIDUR: ${currentDetailJurnal.tidurCepat} WIB\n\n📋 DETAIL INPUT FORM:\n• Siswa telah mengisi waktu tidur di form jurnal\n• Menunjukkan kedisiplinan dalam mengatur waktu istirahat\n• Input waktu tidur sudah sesuai dengan form\n\n💡 EVALUASI:\n• Menerapkan pola tidur yang teratur dan disiplin\n• Menjaga kesehatan dengan istirahat yang cukup\n• Waktu tidur mendukung aktivitas optimal keesokan hari` : 
+                        '❌ BELUM MENGATUR WAKTU TIDUR YANG BAIK\n\n📋 STATUS INPUT FORM:\n• Siswa belum mengisi waktu tidur di form jurnal\n• Field waktu tidur masih kosong atau tidak diisi\n• Input manajemen waktu istirahat belum lengkap\n\n💡 REKOMENDASI:\n• Perlu memperbaiki pola tidur untuk kesehatan optimal\n• Disarankan tidur sebelum jam 22:00 WIB\n• Isi form waktu tidur secara konsisten untuk monitoring'
                 }
             ];
             
-            // Gambar baris tabel
-            let currentY = startY + 15;
+            // Gambar baris tabel dengan autofit content
+            let currentY = startY + 18;
             doc.setFont(undefined, 'normal');
-            doc.setFontSize(8);
             
             habits.forEach((habit, index) => {
-                // Hitung tinggi sel berdasarkan konten
-                const wrappedText = doc.splitTextToSize(habit.value, colWidths[2] - 8);
+                // Hitung tinggi sel berdasarkan konten (autofit content)
+                const wrappedText = doc.splitTextToSize(habit.value, colWidths[2] - 10);
                 const titleLines = habit.title.split('\n');
-                const maxLines = Math.max(titleLines.length, wrappedText.length);
-                const cellHeight = Math.max(25, maxLines * 3 + 12);
+                const maxLines = Math.max(titleLines.length + 2, wrappedText.length + 2);
+                const cellHeight = Math.max(30, maxLines * 2.8 + 15); // Autofit berdasarkan konten
                 
-                // Warna latar belakang bergantian
+                // Warna latar belakang bergantian untuk readability
                 if (index % 2 === 0) {
                     doc.setFillColor(248, 249, 250);
-                    doc.rect(15, currentY, tableWidth, cellHeight, 'F');
+                    doc.rect(margin, currentY, tableWidth, cellHeight, 'F');
                 }
                 
-                // Border sel
+                // Border sel yang rapi
                 doc.setDrawColor(200, 200, 200);
-                doc.setLineWidth(0.2);
-                doc.rect(15, currentY, colWidths[0], cellHeight);
-                doc.rect(15 + colWidths[0], currentY, colWidths[1], cellHeight);
-                doc.rect(15 + colWidths[0] + colWidths[1], currentY, colWidths[2], cellHeight);
+                doc.setLineWidth(0.3);
+                doc.rect(margin, currentY, colWidths[0], cellHeight);
+                doc.rect(margin + colWidths[0], currentY, colWidths[1], cellHeight);
+                doc.rect(margin + colWidths[0] + colWidths[1], currentY, colWidths[2], cellHeight);
                 
-                // Nomor
+                // Nomor dengan styling yang menarik
                 doc.setFont(undefined, 'bold');
-                doc.setFontSize(12);
-                doc.text(habit.no, 25, currentY + 15);
+                doc.setFontSize(14);
+                doc.setTextColor(52, 152, 219);
+                doc.text(habit.no, margin + 12.5, currentY + cellHeight/2 + 2, { align: 'center' });
                 
-                // Judul kebiasaan
+                // Judul kebiasaan dengan format yang jelas
+                doc.setTextColor(0, 0, 0);
                 doc.setFont(undefined, 'bold');
-                doc.setFontSize(9);
+                doc.setFontSize(10);
                 titleLines.forEach((line, lineIndex) => {
-                    doc.text(line, 20, currentY + 10 + (lineIndex * 4));
+                    doc.text(line, margin + colWidths[0] + 5, currentY + 12 + (lineIndex * 5));
                 });
                 
-                // Detail kegiatan
+                // Detail kegiatan dengan format yang mudah dibaca
                 doc.setFont(undefined, 'normal');
-                doc.setFontSize(8);
+                doc.setFontSize(8.5);
                 wrappedText.forEach((line, lineIndex) => {
-                    doc.text(line, 20 + colWidths[0] + colWidths[1], currentY + 8 + (lineIndex * 3));
+                    doc.text(line, margin + colWidths[0] + colWidths[1] + 5, currentY + 10 + (lineIndex * 2.8));
                 });
                 
                 currentY += cellHeight;
             });
             
-            // Border luar tabel
+            // Border luar tabel yang tegas
             doc.setDrawColor(0, 0, 0);
-            doc.setLineWidth(0.5);
-            doc.rect(15, startY, tableWidth, currentY - startY);
+            doc.setLineWidth(0.8);
+            doc.rect(margin, startY, tableWidth, currentY - startY);
             
-            // Catatan dan evaluasi
-            const noteY = currentY + 8;
+            // Catatan evaluasi dengan desain yang menarik
+            const noteY = currentY + 10;
             doc.setFillColor(255, 248, 220);
-            doc.rect(15, noteY, 267, 12, 'F');
-            doc.setLineWidth(0.3);
-            doc.rect(15, noteY, 267, 12);
+            doc.rect(margin, noteY, tableWidth, 15, 'F');
+            doc.setLineWidth(0.4);
+            doc.rect(margin, noteY, tableWidth, 15);
             
             doc.setFont(undefined, 'bold');
-            doc.setFontSize(10);
-            doc.text('CATATAN EVALUASI:', 20, noteY + 5);
+            doc.setFontSize(11);
+            doc.setTextColor(184, 134, 11);
+            doc.text('📋 CATATAN EVALUASI BERDASARKAN INPUT FORM USER:', margin + 5, noteY + 6);
             doc.setFont(undefined, 'normal');
             doc.setFontSize(9);
-            doc.text('Jurnal ini menunjukkan aktivitas harian siswa berdasarkan input form dalam menerapkan 7 kebiasaan positif anak Indonesia hebat.', 20, noteY + 8);
-            doc.text('Orang tua dan guru wali dapat memberikan bimbingan serta motivasi untuk kebiasaan yang perlu ditingkatkan lebih lanjut.', 20, noteY + 11);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Jurnal ini menunjukkan aktivitas harian siswa berdasarkan data yang diinput melalui form digital dalam menerapkan', margin + 5, noteY + 10);
+            doc.text('7 kebiasaan positif anak Indonesia hebat. Orang tua dan guru wali dapat memberikan bimbingan untuk kebiasaan yang perlu ditingkatkan.', margin + 5, noteY + 13);
             
-            // Tanda tangan dengan box (landscape layout)
-            const signatureY = noteY + 20;
+            // Area tanda tangan dengan layout landscape yang proporsional
+            const signatureY = noteY + 25;
             
-            // Box tanda tangan kiri - Orang Tua/Wali Murid
-            doc.setLineWidth(0.5);
-            doc.rect(20, signatureY, 90, 30);
+            // Box tanda tangan kiri - Orang Tua/Wali Murid (di atas footer sebelah kiri)
+            doc.setLineWidth(0.6);
+            doc.setDrawColor(0, 0, 0);
+            doc.rect(margin + 15, signatureY, 110, 35);
             doc.setFont(undefined, 'bold');
-            doc.setFontSize(10);
-            doc.text('Mengetahui,', 25, signatureY + 8);
+            doc.setFontSize(11);
+            doc.text('Mengetahui,', margin + 20, signatureY + 10);
             doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            doc.text('Orang Tua/Wali Murid', margin + 20, signatureY + 18);
             doc.setFontSize(9);
-            doc.text('Orang Tua/Wali Murid', 25, signatureY + 15);
-            doc.text('Tanda Tangan & Nama Lengkap:', 25, signatureY + 22);
-            doc.text('(________________________________)', 25, signatureY + 27);
+            doc.text('Tanda Tangan & Nama Lengkap:', margin + 20, signatureY + 25);
+            doc.text('(___________________________________)', margin + 20, signatureY + 31);
             
-            // Box tanda tangan kanan - Guru Wali
-            doc.rect(187, signatureY, 90, 30);
+            // Box tanda tangan kanan - Guru Wali (di atas footer sebelah kanan)
+            doc.rect(margin + 152, signatureY, 110, 35);
             doc.setFont(undefined, 'bold');
-            doc.setFontSize(10);
-            doc.text(`${tanggal}`, 192, signatureY + 8);
+            doc.setFontSize(11);
+            doc.text(`${tanggal}`, margin + 157, signatureY + 10);
             doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            doc.text('Guru Wali', margin + 157, signatureY + 18);
             doc.setFontSize(9);
-            doc.text('Guru Wali', 192, signatureY + 15);
-            doc.text('Tanda Tangan & Nama Lengkap:', 192, signatureY + 22);
-            doc.text('(________________________________)', 192, signatureY + 27);
+            doc.text('Tanda Tangan & Nama Lengkap:', margin + 157, signatureY + 25);
+            doc.text('(___________________________________)', margin + 157, signatureY + 31);
             
-            // Footer dengan border
-            const footerY = signatureY + 40;
+            // Footer dengan desain profesional
+            const footerY = signatureY + 45;
             doc.setDrawColor(41, 128, 185);
-            doc.setLineWidth(1);
-            doc.line(15, footerY, 282, footerY);
+            doc.setLineWidth(1.2);
+            doc.line(margin, footerY, pageWidth - margin, footerY);
             
             doc.setFontSize(8);
             doc.setFont(undefined, 'italic');
             doc.setTextColor(100, 100, 100);
-            doc.text('Jurnal Digital 7 Kebiasaan Anak Indonesia Hebat - Sistem Monitoring Karakter Siswa Berbasis Web', 148.5, footerY + 5, { align: 'center' });
-            doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')} | Format: Landscape A4`, 148.5, footerY + 9, { align: 'center' });
+            doc.text('Jurnal Digital 7 Kebiasaan Anak Indonesia Hebat - Sistem Monitoring Karakter Siswa Berbasis Web', 148.5, footerY + 6, { align: 'center' });
+            doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')} | Format: Landscape A4 (Autofit Content & Window)`, 148.5, footerY + 11, { align: 'center' });
             
-            doc.save(`Jurnal_Harian_${siswa ? siswa.nama.replace(/\s+/g, '_') : 'Unknown'}_${tanggal.replace(/\//g, '-')}.pdf`);
+            // Save dengan nama file yang informatif
+            doc.save(`Jurnal_Harian_${siswa ? siswa.nama.replace(/\s+/g, '_') : 'Unknown'}_${tanggal.replace(/\//g, '-')}_Landscape.pdf`);
         }
 
         function getIbadahData() {
@@ -2227,5 +2258,5 @@
             checkboxes.forEach(cb => cb.checked = false);
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aadd0d34a2df9f',t:'MTc1OTgxMzUyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aba31d37bddf9f',t:'MTc1OTgyMTYzOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
