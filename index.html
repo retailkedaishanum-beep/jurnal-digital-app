@@ -1583,47 +1583,157 @@
             const tanggal = new Date(currentDetailJurnal.tanggal).toLocaleDateString('id-ID');
             
             // Header
-            doc.setFontSize(16);
-            doc.text('JURNAL DIGITAL 7 KEBIASAAN ANAK INDONESIA HEBAT', 20, 20);
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('JURNAL DIGITAL 7 KEBIASAAN ANAK INDONESIA HEBAT', 105, 15, { align: 'center' });
             
-            doc.setFontSize(12);
-            doc.text(`Nama: ${siswa ? siswa.nama : 'Unknown'}`, 20, 35);
-            doc.text(`Kelas: ${siswa ? siswa.kelas : '-'}`, 20, 45);
-            doc.text(`Jurusan: ${siswa ? siswa.jurusan : '-'}`, 20, 55);
-            doc.text(`Tanggal: ${tanggal}`, 20, 65);
+            // Info Siswa
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Nama: ${siswa ? siswa.nama : 'Unknown'}`, 20, 30);
+            doc.text(`Kelas: ${siswa ? siswa.kelas : '-'}`, 20, 37);
+            doc.text(`Jurusan: ${siswa ? siswa.jurusan : '-'}`, 120, 30);
+            doc.text(`Tanggal: ${tanggal}`, 120, 37);
             
-            // Content
-            let yPos = 85;
+            // Tabel Header
+            const startY = 50;
+            const rowHeight = 15;
+            const colWidths = [10, 50, 130]; // No, Kebiasaan, Isian
+            
+            // Draw table header
+            doc.setFillColor(240, 240, 240);
+            doc.rect(20, startY, colWidths[0] + colWidths[1] + colWidths[2], rowHeight, 'F');
+            
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(9);
+            doc.text('No', 25, startY + 10);
+            doc.text('7 Kebiasaan Anak Indonesia Hebat', 35, startY + 10);
+            doc.text('Isian Jurnal Harian', 95, startY + 10);
+            
+            // Draw table borders for header
+            doc.rect(20, startY, colWidths[0], rowHeight);
+            doc.rect(20 + colWidths[0], startY, colWidths[1], rowHeight);
+            doc.rect(20 + colWidths[0] + colWidths[1], startY, colWidths[2], rowHeight);
+            
+            // Prepare data
             const habits = [
-                { title: '• Bangun Pagi', value: currentDetailJurnal.bangunPagi || 'Tidak diisi' },
-                { title: '• Beribadah', value: Array.isArray(currentDetailJurnal.beribadah) ? currentDetailJurnal.beribadah.join(', ') : (currentDetailJurnal.beribadah || 'Tidak diisi') },
-                { title: '• Berolahraga', value: currentDetailJurnal.berolahraga || 'Tidak diisi' },
-                { title: '• Makan Sehat', value: typeof currentDetailJurnal.makanSehat === 'object' ? 
-                    `Sarapan: ${currentDetailJurnal.makanSehat.sarapan ? 'Ya' : 'Tidak'}, Siang: ${currentDetailJurnal.makanSehat.siang ? 'Ya' : 'Tidak'}, Malam: ${currentDetailJurnal.makanSehat.malam ? 'Ya' : 'Tidak'}` : 
-                    (currentDetailJurnal.makanSehat ? 'Sudah makan sehat' : 'Tidak diisi') },
-                { title: '• Gemar Belajar', value: currentDetailJurnal.gemarBelajar || 'Tidak diisi' },
-                { title: '• Bermasyarakat', value: currentDetailJurnal.bermasyarakat || 'Tidak diisi' },
-                { title: '• Tidur Cepat', value: currentDetailJurnal.tidurCepat || 'Tidak diisi' }
+                { 
+                    no: '1', 
+                    title: 'Bangun Pagi', 
+                    value: currentDetailJurnal.bangunPagi ? `Bangun jam ${currentDetailJurnal.bangunPagi}` : 'Tidak diisi'
+                },
+                { 
+                    no: '2', 
+                    title: 'Beribadah', 
+                    value: Array.isArray(currentDetailJurnal.beribadah) && currentDetailJurnal.beribadah.length > 0 ? 
+                        `Melaksanakan: ${currentDetailJurnal.beribadah.join(', ')}` : 
+                        (currentDetailJurnal.beribadah || 'Tidak diisi')
+                },
+                { 
+                    no: '3', 
+                    title: 'Berolahraga', 
+                    value: currentDetailJurnal.berolahraga || 'Tidak diisi'
+                },
+                { 
+                    no: '4', 
+                    title: 'Makan Sehat', 
+                    value: (() => {
+                        if (typeof currentDetailJurnal.makanSehat === 'object' && currentDetailJurnal.makanSehat !== null) {
+                            const meals = [];
+                            if (currentDetailJurnal.makanSehat.sarapan) meals.push('Sarapan');
+                            if (currentDetailJurnal.makanSehat.siang) meals.push('Makan Siang');
+                            if (currentDetailJurnal.makanSehat.malam) meals.push('Makan Malam');
+                            return meals.length > 0 ? `Sudah makan sehat: ${meals.join(', ')}` : 'Belum makan sehat';
+                        }
+                        return currentDetailJurnal.makanSehat ? 'Sudah makan sehat' : 'Tidak diisi';
+                    })()
+                },
+                { 
+                    no: '5', 
+                    title: 'Gemar Belajar', 
+                    value: (() => {
+                        if (Array.isArray(currentDetailJurnal.gemarBelajar) && currentDetailJurnal.gemarBelajar.length > 0) {
+                            const totalDurasi = currentDetailJurnal.gemarBelajar.reduce((sum, act) => sum + (act.durasi || 0), 0);
+                            const kegiatan = currentDetailJurnal.gemarBelajar.map(act => 
+                                `${act.jenis} ${act.mapel ? '- ' + act.mapel : ''}: ${act.deskripsi} (${act.durasi || 0} menit)`
+                            ).join('; ');
+                            return `Total ${currentDetailJurnal.gemarBelajar.length} kegiatan (${totalDurasi} menit): ${kegiatan}`;
+                        }
+                        return currentDetailJurnal.gemarBelajar || 'Tidak diisi';
+                    })()
+                },
+                { 
+                    no: '6', 
+                    title: 'Bermasyarakat', 
+                    value: (() => {
+                        if (Array.isArray(currentDetailJurnal.bermasyarakat) && currentDetailJurnal.bermasyarakat.length > 0) {
+                            const totalDurasi = currentDetailJurnal.bermasyarakat.reduce((sum, act) => sum + (act.durasi || 0), 0);
+                            const kegiatan = currentDetailJurnal.bermasyarakat.map(act => 
+                                `${act.jenis} ${act.lokasi ? 'di ' + act.lokasi : ''}: ${act.detail} (${act.durasi || 0} menit)`
+                            ).join('; ');
+                            return `Total ${currentDetailJurnal.bermasyarakat.length} kegiatan (${totalDurasi} menit): ${kegiatan}`;
+                        }
+                        return currentDetailJurnal.bermasyarakat || 'Tidak diisi';
+                    })()
+                },
+                { 
+                    no: '7', 
+                    title: 'Tidur Cepat', 
+                    value: currentDetailJurnal.tidurCepat ? `Tidur jam ${currentDetailJurnal.tidurCepat}` : 'Tidak diisi'
+                }
             ];
             
-            habits.forEach(habit => {
-                doc.setFont(undefined, 'bold');
-                doc.text(habit.title, 20, yPos);
-                doc.setFont(undefined, 'normal');
+            // Draw table rows
+            let currentY = startY + rowHeight;
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(8);
+            
+            habits.forEach((habit, index) => {
+                // Calculate row height based on content
+                const wrappedText = doc.splitTextToSize(habit.value, colWidths[2] - 4);
+                const cellHeight = Math.max(rowHeight, wrappedText.length * 4 + 6);
                 
-                const lines = doc.splitTextToSize(habit.value, 160);
-                doc.text(lines, 20, yPos + 10);
-                yPos += 10 + (lines.length * 5) + 10;
+                // Draw row background (alternating colors)
+                if (index % 2 === 1) {
+                    doc.setFillColor(250, 250, 250);
+                    doc.rect(20, currentY, colWidths[0] + colWidths[1] + colWidths[2], cellHeight, 'F');
+                }
+                
+                // Draw cell borders
+                doc.rect(20, currentY, colWidths[0], cellHeight);
+                doc.rect(20 + colWidths[0], currentY, colWidths[1], cellHeight);
+                doc.rect(20 + colWidths[0] + colWidths[1], currentY, colWidths[2], cellHeight);
+                
+                // Add text content
+                doc.setFont(undefined, 'bold');
+                doc.text(habit.no, 25, currentY + 8);
+                doc.text(habit.title, 25, currentY + 8);
+                
+                doc.setFont(undefined, 'normal');
+                doc.text(wrappedText, 22 + colWidths[0] + colWidths[1], currentY + 6);
+                
+                currentY += cellHeight;
             });
             
-            // Signatures
-            yPos += 20;
-            doc.text('Tanda Tangan Orang Tua/Wali Murid', 20, yPos);
-            doc.text('Tanda Tangan Guru Wali', 120, yPos);
+            // Signatures section
+            const signatureY = currentY + 20;
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
             
-            yPos += 30;
-            doc.text('(_________________________)', 20, yPos);
-            doc.text('(_________________________)', 120, yPos);
+            // Left signature
+            doc.text('Mengetahui,', 30, signatureY);
+            doc.text('Orang Tua/Wali Murid', 30, signatureY + 7);
+            doc.text('(________________________)', 30, signatureY + 35);
+            
+            // Right signature  
+            doc.text(`${tanggal}`, 130, signatureY);
+            doc.text('Siswa', 130, signatureY + 7);
+            doc.text(`(${siswa ? siswa.nama : 'Unknown'})`, 130, signatureY + 35);
+            
+            // Footer
+            doc.setFontSize(7);
+            doc.setFont(undefined, 'italic');
+            doc.text('Jurnal Digital 7 Kebiasaan Anak Indonesia Hebat - Dicetak otomatis', 105, 280, { align: 'center' });
             
             doc.save(`Jurnal_${siswa ? siswa.nama.replace(/\s+/g, '_') : 'Unknown'}_${tanggal.replace(/\//g, '-')}.pdf`);
         }
@@ -1956,5 +2066,5 @@
             checkboxes.forEach(cb => cb.checked = false);
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aab878536cdf9f',t:'MTc1OTgxMjAyOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aabf6ac281df9f',t:'MTc1OTgxMjMxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
