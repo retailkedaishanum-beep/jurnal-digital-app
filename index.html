@@ -1348,18 +1348,70 @@
             
             tabelJurnal.innerHTML = filteredData.map(jurnal => {
                 const siswa = dataSiswa.find(s => s.id === jurnal.siswaId);
-                return `<tr class="border-b">
-                    <td class="px-4 py-2">${siswa ? siswa.nama : 'Unknown'}</td>
-                    <td class="px-4 py-2">${siswa ? siswa.kelas : '-'}</td>
-                    <td class="px-4 py-2">${siswa ? siswa.jurusan : '-'}</td>
-                    <td class="px-4 py-2">${jurnal.tanggal}</td>
-                    <td class="px-4 py-2">${jurnal.bangunPagi || '-'}</td>
-                    <td class="px-4 py-2">${jurnal.beribadah ? '✅' : '❌'}</td>
-                    <td class="px-4 py-2">${jurnal.berolahraga || '-'}</td>
-                    <td class="px-4 py-2">${jurnal.makanSehat ? '✅' : '❌'}</td>
-                    <td class="px-4 py-2">${jurnal.gemarBelajar || '-'}</td>
-                    <td class="px-4 py-2">${jurnal.bermasyarakat || '-'}</td>
-                    <td class="px-4 py-2">${jurnal.tidurCepat || '-'}</td>
+                
+                // Format beribadah data
+                let beribadahText = '❌';
+                if (Array.isArray(jurnal.beribadah) && jurnal.beribadah.length > 0) {
+                    beribadahText = `✅ (${jurnal.beribadah.length} ibadah)`;
+                } else if (jurnal.beribadah && jurnal.beribadah !== false) {
+                    beribadahText = '✅';
+                }
+                
+                // Format berolahraga data
+                let olahragaText = '❌';
+                if (jurnal.berolahraga && jurnal.berolahraga.trim() !== '' && jurnal.berolahraga !== 'undefined - undefined menit') {
+                    const parts = jurnal.berolahraga.split(' - ');
+                    if (parts.length >= 2 && parts[0].trim() !== '' && parts[1] !== 'undefined menit') {
+                        olahragaText = `✅ ${jurnal.berolahraga}`;
+                    } else if (parts[0].trim() !== '') {
+                        olahragaText = `✅ ${parts[0]}`;
+                    }
+                }
+                
+                // Format makan sehat data
+                let makanSehatText = '❌';
+                if (typeof jurnal.makanSehat === 'object' && jurnal.makanSehat !== null) {
+                    const meals = [];
+                    if (jurnal.makanSehat.sarapan) meals.push('Sarapan');
+                    if (jurnal.makanSehat.siang) meals.push('Siang');
+                    if (jurnal.makanSehat.malam) meals.push('Malam');
+                    if (meals.length > 0) {
+                        makanSehatText = `✅ (${meals.join(', ')})`;
+                    }
+                } else if (jurnal.makanSehat === true) {
+                    makanSehatText = '✅';
+                }
+                
+                // Format gemar belajar data
+                let belajarText = '❌';
+                if (Array.isArray(jurnal.gemarBelajar) && jurnal.gemarBelajar.length > 0) {
+                    const totalDurasi = jurnal.gemarBelajar.reduce((sum, act) => sum + (act.durasi || 0), 0);
+                    belajarText = `✅ ${jurnal.gemarBelajar.length} kegiatan (${totalDurasi} menit)`;
+                } else if (jurnal.gemarBelajar && jurnal.gemarBelajar.trim() !== '') {
+                    belajarText = `✅ ${jurnal.gemarBelajar.substring(0, 30)}...`;
+                }
+                
+                // Format bermasyarakat data
+                let masyarakatText = '❌';
+                if (Array.isArray(jurnal.bermasyarakat) && jurnal.bermasyarakat.length > 0) {
+                    const totalDurasi = jurnal.bermasyarakat.reduce((sum, act) => sum + (act.durasi || 0), 0);
+                    masyarakatText = `✅ ${jurnal.bermasyarakat.length} kegiatan (${totalDurasi} menit)`;
+                } else if (jurnal.bermasyarakat && jurnal.bermasyarakat.trim() !== '') {
+                    masyarakatText = `✅ ${jurnal.bermasyarakat.substring(0, 30)}...`;
+                }
+                
+                return `<tr class="border-b hover:bg-gray-50">
+                    <td class="px-4 py-3 font-medium">${siswa ? siswa.nama : 'Unknown'}</td>
+                    <td class="px-4 py-3">${siswa ? siswa.kelas : '-'}</td>
+                    <td class="px-4 py-3">${siswa ? siswa.jurusan : '-'}</td>
+                    <td class="px-4 py-3">${new Date(jurnal.tanggal).toLocaleDateString('id-ID')}</td>
+                    <td class="px-4 py-3">${jurnal.bangunPagi ? `✅ ${jurnal.bangunPagi}` : '❌'}</td>
+                    <td class="px-4 py-3">${beribadahText}</td>
+                    <td class="px-4 py-3">${olahragaText}</td>
+                    <td class="px-4 py-3">${makanSehatText}</td>
+                    <td class="px-4 py-3">${belajarText}</td>
+                    <td class="px-4 py-3">${masyarakatText}</td>
+                    <td class="px-4 py-3">${jurnal.tidurCepat ? `✅ ${jurnal.tidurCepat}` : '❌'}</td>
                 </tr>`;
             }).join('');
         }
@@ -1839,9 +1891,10 @@
                 if (document.getElementById('rawatib')?.checked) sholat.push('Rawatib');
                 if (document.getElementById('dhuha')?.checked) sholat.push('Dhuha');
                 if (document.getElementById('tahajud')?.checked) sholat.push('Tahajud');
-                return sholat.length > 0;
+                return sholat;
             } else {
-                return document.getElementById('kegiatanIbadah')?.value || '';
+                const kegiatan = document.getElementById('kegiatanIbadah')?.value || '';
+                return kegiatan ? kegiatan : false;
             }
         }
 
@@ -1855,7 +1908,7 @@
             const malam = ['malamKarbo', 'malamProtein', 'malamSayur', 'malamBuah', 'malamMinuman'].some(id => 
                 document.getElementById(id)?.checked
             );
-            return sarapan || siang || malam;
+            return { sarapan, siang, malam };
         }
 
         // Belajar Functions
@@ -2155,5 +2208,5 @@
             checkboxes.forEach(cb => cb.checked = false);
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aacb99c71cdf9f',t:'MTc1OTgxMjgxMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aad30632cadf9f',t:'MTc1OTgxMzExNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
